@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Note from "../components/Note";
 import Spinner from "../components/Loaders/Spinner";
 import Skeleton from "../components/Loaders/Skeleton";
-import DeletionModal from "../components/Modals/DeletionModal";
 
 export type NoteType = {
   _id?: string;

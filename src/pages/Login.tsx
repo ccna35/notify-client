@@ -9,6 +9,7 @@ import { UserType } from "./Register";
 export default function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   const [_, setCookies] = useCookies(["access_token"]);
 
@@ -33,7 +34,8 @@ export default function Login() {
       navigate("/home");
     },
     onError: (error: any) => {
-      console.log(error);
+      setError(error.response.data.message);
+      console.log(error.response.data.message);
     },
   });
 
@@ -107,6 +109,11 @@ export default function Login() {
                 />
               </div>
             </div>
+            {error && (
+              <div className="bg-red-200 p-2 text-red-800 rounded border border-red-300">
+                {error}
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <div className="flex items-center">

@@ -6,6 +6,10 @@ import useCookies from "react-cookie/cjs/useCookies";
 import { Link, useNavigate } from "react-router-dom";
 import { UserType } from "./Register";
 
+const API_URL: string = import.meta.env.DEV
+  ? import.meta.env.VITE_REACT_DEV_API_URL
+  : import.meta.env.VITE_REACT_PROD_API_URL;
+
 export default function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -19,7 +23,7 @@ export default function Login() {
 
   const mutation = useMutation({
     mutationFn: (newUser: UserType) => {
-      return axios.post<UserType>("http://localhost:3000/users/login", newUser);
+      return axios.post<UserType>(`${API_URL}/users/login`, newUser);
     },
     onSuccess: (data) => {
       // Invalidate and refetch

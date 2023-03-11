@@ -15,14 +15,18 @@ export type NoteType = {
   updatedAt?: string;
 };
 
+const API_URL: string = import.meta.env.DEV
+  ? import.meta.env.VITE_REACT_DEV_API_URL
+  : import.meta.env.VITE_REACT_PROD_API_URL;
+
+console.log(API_URL);
+
 export default function Home() {
   const id: string = JSON.parse(localStorage.getItem("userData")!).id;
 
   const getNotes = async (): Promise<NoteType[]> => {
     try {
-      const response = await axios.get(
-        `http://localhost:3000/notes/getAll/${id}`
-      );
+      const response = await axios.get(`${API_URL}/notes/getAll/${id}`);
       console.log(response.data);
       return response.data;
     } catch (error: any) {

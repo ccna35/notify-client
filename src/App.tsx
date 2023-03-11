@@ -21,11 +21,11 @@ const router = createBrowserRouter(
     <Route errorElement={<NotFoundPage />}>
       <Route element={<RootLayout />}>
         <Route element={<ProtectedRoutes />}>
-          <Route path="home" element={<Home />} />
-          <Route path="new" element={<New />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/new" element={<New />} />
         </Route>
-        <Route path="register" element={<Register />} />
-        <Route path="login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
       </Route>
       <Route path="/" element={<LandingPageLayout />}>
         <Route path="/privacy" element={<Privacy />} />

@@ -21,6 +21,10 @@ export type UserType = {
   token?: string;
 };
 
+const API_URL: string = import.meta.env.DEV
+  ? import.meta.env.VITE_REACT_DEV_API_URL
+  : import.meta.env.VITE_REACT_PROD_API_URL;
+
 export default function Register() {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -36,7 +40,7 @@ export default function Register() {
 
   const mutation = useMutation({
     mutationFn: (newUser: UserType) => {
-      return axios.post<UserType>("http://localhost:3000/users/new", newUser);
+      return axios.post<UserType>(`${API_URL}/users/new`, newUser);
     },
     onSuccess: (data) => {
       // Invalidate and refetch

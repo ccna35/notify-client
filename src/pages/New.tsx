@@ -10,6 +10,10 @@ import { Navigate, redirect, useNavigate } from "react-router-dom";
 import { NoteType } from "./Home";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
+const API_URL: string = import.meta.env.DEV
+  ? import.meta.env.VITE_REACT_DEV_API_URL
+  : import.meta.env.VITE_REACT_PROD_API_URL;
+
 export default function New() {
   const [title, setTitle] = useState<string>("");
   const [text, setText] = useState<string>("");
@@ -24,7 +28,7 @@ export default function New() {
       userId: string;
       pinned: boolean;
     }) => {
-      return axios.post<NoteType>("http://localhost:3000/notes/new", newNote);
+      return axios.post<NoteType>(`${API_URL}/notes/new`, newNote);
     },
     onSuccess: () => {
       // Invalidate and refetch

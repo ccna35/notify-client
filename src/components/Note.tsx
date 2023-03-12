@@ -5,13 +5,16 @@ import { ErrorInfo, FC, FunctionComponent, useState } from "react";
 import { NoteType } from "../pages/Home";
 import { motion } from "framer-motion";
 import Modal from "react-modal";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-const API_URL: string = import.meta.env.DEV
+const API_URL: string = import.meta.env.DE
   ? import.meta.env.VITE_REACT_DEV_API_URL
   : import.meta.env.VITE_REACT_PROD_API_URL;
 
 const Note: FunctionComponent<NoteType> = (note) => {
   const newDate = dayjs(note.createdAt).format("ddd MMM YYYY h:m A");
+  dayjs.extend(relativeTime);
+  console.log(dayjs(note.createdAt).fromNow());
 
   const queryClient = useQueryClient();
 
@@ -75,7 +78,7 @@ const Note: FunctionComponent<NoteType> = (note) => {
       </p>
       <div className="flex justify-between items-center">
         <p className="text-sm p-2 rounded-sm bg-slate-200 self-start">
-          {newDate}
+          {dayjs(note.createdAt).fromNow()}
         </p>
         <svg
           xmlns="http://www.w3.org/2000/svg"

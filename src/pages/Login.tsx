@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import useCookies from "react-cookie/cjs/useCookies";
 import { Link, useNavigate } from "react-router-dom";
 import { UserType } from "./Register";
+import { UserContext } from "../App";
 
 const API_URL: string = import.meta.env.DEV
   ? import.meta.env.VITE_REACT_DEV_API_URL
   : import.meta.env.VITE_REACT_PROD_API_URL;
 
 export default function Login() {
+  const { user, setUser } = useContext(UserContext);
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +36,14 @@ export default function Login() {
         "userData",
         JSON.stringify(data.data.data?.userData)
       );
+      setUser({
+        name:
+          data.data.data?.userData.firstName +
+          " " +
+          data.data.data?.userData.lastName,
+        status: true,
+        email: data.data.data?.userData.email as string,
+      });
       setEmail("");
       setPassword("");
       navigate("/home");

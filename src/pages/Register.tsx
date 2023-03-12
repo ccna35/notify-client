@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useState } from "react";
+import { FormEvent, useState, ChangeEvent, useContext } from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../App";
 import { NoteType } from "./Home";
 
 export type UserType = {
@@ -10,7 +11,9 @@ export type UserType = {
     token: string;
     userData: {
       id: string;
-      email: string;
+      email: string | undefined;
+      firstName: string;
+      lastName: string;
     };
   };
   firstName?: string;
@@ -31,12 +34,35 @@ export default function Register() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [secondPassword, setSecondPassword] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  const [_, setCookies] = useCookies(["access_token"]);
+  const { user, setUser } = useContext(UserContext);
+
+  const [cookies, setCookies] = useCookies(["access_token"]);
 
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
+
+  const passwordRegex =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+  const checkPassword = (e: any) => {
+    console.log(e.target.value);
+    let value: string = e.target.value;
+    setPassword(value);
+    if (!value.match(passwordRegex)) {
+      setPasswordError(
+        "Password must be at least 8 characters long and includes letters, numbers and special characters."
+      );
+      console.log(passwordError);
+      console.log(password);
+      setPassword(value);
+    } else {
+      setPasswordError("");
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: (newUser: UserType) => {
@@ -50,7 +76,18 @@ export default function Register() {
         "userData",
         JSON.stringify(data.data.data?.userData)
       );
-      console.log(data.data.data);
+
+      setUser({
+        name:
+          data.data.data?.userData.firstName +
+          " " +
+          data.data.data?.userData.lastName,
+        status: true,
+        email: data.data.data?.userData.email as string,
+      });
+
+      console.log(cookies);
+      console.log(JSON.parse(localStorage.getItem("userData")!));
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -59,6 +96,7 @@ export default function Register() {
       navigate("/home");
     },
     onError: (error: any) => {
+      setError(error.response.data.message);
       console.log(error);
     },
   });
@@ -92,6 +130,11 @@ export default function Register() {
           >
             <div className="overflow-hidden shadow sm:rounded-md">
               <div className="bg-white px-4 py-5 sm:p-6">
+                {error && (
+                  <div className="mb-4 bg-red-200 p-2 text-red-800 rounded border border-red-300">
+                    {error}
+                  </div>
+                )}
                 <div className="grid grid-cols-6 gap-6">
                   <div className="col-span-6 sm:col-span-3">
                     <label
@@ -164,9 +207,15 @@ export default function Register() {
                       autoComplete="current-password"
                       required
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      onChange={(e) => setPassword(e.target.value)}
+                      // onChange={(e) => setPassword(e.target.value)}
+                      onChange={checkPassword}
                       value={password}
                     />
+                    {passwordError && (
+                      <div className="mb-4 bg-red-200 p-2 text-red-800 rounded border border-red-300">
+                        {passwordError}
+                      </div>
+                    )}
                   </div>
 
                   <div className="col-span-6 sm:col-span-4">

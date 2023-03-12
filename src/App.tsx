@@ -15,6 +15,35 @@ import Tos from "./pages/Tos";
 import NotFoundPage from "./pages/NotFoundPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ProtectedRoutes from "./components/ProtectedRoutes";
+import { createContext, Dispatch, SetStateAction, useState } from "react";
+
+type User = {
+  name: string;
+  email: string;
+  status: boolean;
+};
+
+interface UserContextInterface {
+  user: User;
+  setUser: Dispatch<SetStateAction<User>>;
+}
+
+type userContextType = {
+  name: string;
+  email: string | undefined;
+  status: boolean;
+};
+
+const defaultState = {
+  user: {
+    name: "",
+    email: "",
+    status: false,
+  },
+  setUser: (user: User) => {},
+} as UserContextInterface;
+
+export const UserContext = createContext(defaultState);
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -38,10 +67,17 @@ const router = createBrowserRouter(
 const queryClient = new QueryClient();
 
 function App() {
+  const [user, setUser] = useState<User>({
+    name: "",
+    email: "",
+    status: false,
+  });
   return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <UserContext.Provider value={{ user, setUser }}>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </UserContext.Provider>
   );
 }
 

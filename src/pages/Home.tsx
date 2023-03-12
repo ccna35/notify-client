@@ -2,6 +2,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Note from "../components/Note";
 import Spinner from "../components/Loaders/Spinner";
+import { useContext } from "react";
+import { UserContext } from "../App";
 
 export type NoteType = {
   _id?: string;
@@ -17,9 +19,11 @@ const API_URL: string = import.meta.env.DEV
   ? import.meta.env.VITE_REACT_DEV_API_URL
   : import.meta.env.VITE_REACT_PROD_API_URL;
 
-console.log(API_URL);
-
 export default function Home() {
+  const { user } = useContext(UserContext);
+
+  console.log(user.name);
+
   const id: string = JSON.parse(localStorage.getItem("userData")!).id;
 
   const getNotes = async (): Promise<NoteType[]> => {
@@ -46,7 +50,6 @@ export default function Home() {
     return (
       <div className="flex justify-center items-center">
         <Spinner />
-        {/* <Skeleton /> */}
       </div>
     );
   }
@@ -54,8 +57,7 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 flex-grow mb-8">
       <h1 className="my-8 text-xl text-center gray-800 p-4 bg-yellow-200 border border-yellow-300 shadow-sm rounded-sm">
-        Hey {JSON.parse(localStorage.getItem("userData")!).firstName}, start
-        your day by creating a new note!
+        Hey {user.name.split(" ")[0]}, start your day by creating a new note!
       </h1>
       {data?.length === 0 ? (
         <div className="text-2xl text-center flex gap-4 items-center justify-center flex-wrap">

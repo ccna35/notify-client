@@ -1,9 +1,10 @@
-import { Fragment } from "react";
+import { Fragment, useContext } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import useCookies from "react-cookie/cjs/useCookies";
+import { UserContext } from "../App";
 
 const navigation = [
   { name: "Home", href: "#", current: true },
@@ -17,12 +18,21 @@ function classNames<T, G>(T: string, G: string) {
 }
 
 export default function Navbar() {
+  const { user, setUser } = useContext(UserContext);
+
   const [cookies, setCookies] = useCookies(["access_token"]);
   const navigate = useNavigate();
+
+  console.log(cookies.access_token);
 
   const signOut = () => {
     setCookies("access_token", "");
     localStorage.removeItem("userData");
+    setUser({
+      name: "",
+      email: "",
+      status: false,
+    });
     navigate("/login");
   };
 
@@ -66,9 +76,9 @@ export default function Navbar() {
                   <div className="flex space-x-4">
                     {navigation
                       .filter((item) =>
-                        cookies.access_token
+                        user.status
                           ? !publicPages.includes(item.name)
-                          : !cookies.access_token
+                          : !user.status
                           ? !privatePages.includes(item.name)
                           : item
                       )
@@ -90,7 +100,7 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-              {cookies.access_token && (
+              {user.status && (
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                   <button
                     type="button"
@@ -173,21 +183,29 @@ export default function Navbar() {
 
           <Disclosure.Panel className="sm:hidden">
             <div className="space-y-1 px-2 pt-2 pb-3">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.name.toLowerCase()}
-                  className={classNames(
-                    item.current
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                    "block px-3 py-2 rounded-md text-base font-medium"
-                  )}
-                  aria-current={item.current ? "page" : undefined}
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {navigation
+                .filter((item) =>
+                  user.status
+                    ? !publicPages.includes(item.name)
+                    : !user.status
+                    ? !privatePages.includes(item.name)
+                    : item
+                )
+                .map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.name.toLowerCase()}
+                    className={classNames(
+                      item.current
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                      "block px-3 py-2 rounded-md text-base font-medium"
+                    )}
+                    aria-current={item.current ? "page" : undefined}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
             </div>
           </Disclosure.Panel>
         </>

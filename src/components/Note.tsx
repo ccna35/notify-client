@@ -6,6 +6,10 @@ import { NoteType } from "../pages/Home";
 import { motion } from "framer-motion";
 import Modal from "react-modal";
 
+const API_URL: string = import.meta.env.DEV
+  ? import.meta.env.VITE_REACT_DEV_API_URL
+  : import.meta.env.VITE_REACT_PROD_API_URL;
+
 const Note: FunctionComponent<NoteType> = (note) => {
   const newDate = dayjs(note.createdAt).format("ddd MMM YYYY h:m A");
 
@@ -13,7 +17,7 @@ const Note: FunctionComponent<NoteType> = (note) => {
 
   const mutation = useMutation({
     mutationFn: async (id: string | undefined) => {
-      return axios.delete(`http://localhost:3000/notes/delete/${id}`);
+      return axios.delete(`${API_URL}/notes/delete/${id}`);
     },
     onSuccess: () => {
       // Invalidate and refetch

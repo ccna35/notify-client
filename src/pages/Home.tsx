@@ -1,9 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import Note from "../components/Note";
 import Spinner from "../components/Loaders/Spinner";
-import Skeleton from "../components/Loaders/Skeleton";
 
 export type NoteType = {
   _id?: string;

@@ -17,7 +17,11 @@ const API_URL: string = import.meta.env.DEV
 export default function New() {
   const [title, setTitle] = useState<string>("");
   const [text, setText] = useState<string>("");
-  const [isPinned, setIsPinned] = useState<boolean>(false);
+  // const [isPinned, setIsPinned] = useState<boolean>(false);
+
+  const checkBoxRef = useRef<HTMLInputElement>(null);
+
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
@@ -26,7 +30,7 @@ export default function New() {
       title: string;
       text: string;
       userId: string;
-      pinned: boolean;
+      pinned?: boolean;
     }) => {
       return axios.post<NoteType>(`${API_URL}/notes/new`, newNote);
     },
@@ -35,28 +39,21 @@ export default function New() {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       setTitle("");
       setText("");
+      navigate("/home");
     },
     onError: (error: any) => {
       console.log(error);
     },
   });
 
-  const handleToggle = () => {
-    // console.log("Before: ", pinned);
-    // setPinned((prev) => !prev);
-    // pinned ? setPinned(false) : setPinned(true);
-    if (isPinned) {
-      setIsPinned(false);
-    } else {
-      setIsPinned(true);
-    }
-    console.log("After: ", isPinned);
+  const handleCheckBox = () => {
+    console.log(checkBoxRef.current?.checked);
   };
 
   return (
-    <div className="mt-10 sm:mt-0 sm:p-8">
-      <div className="md:grid md:grid-cols-1 md:gap-6">
-        <div className="mt-5 md:col-span-2 md:mt-0">
+    <div className="mt-10 sm:mt-0 sm:p-8 ">
+      <div className="md:grid md:grid-cols-1 md:gap-6 ">
+        <div className="mt-5 md:col-span-2 md:mt-0 ">
           <form
             method="POST"
             onSubmit={(e) => {
@@ -65,12 +62,12 @@ export default function New() {
                 title,
                 text,
                 userId: JSON.parse(localStorage.getItem("userData")!).id,
-                pinned: isPinned,
+                pinned: checkBoxRef.current?.checked,
               });
             }}
           >
-            <div className="overflow-hidden shadow sm:rounded-md">
-              <div className="bg-white px-4 py-5 sm:p-6">
+            <div className="overflow-hidden sm:rounded-md">
+              <div className="bg-white px-4 py-5 sm:p-6 dark:bg-base-100">
                 <div className="grid grid-cols-1 gap-6">
                   <div className="col-span-6 sm:col-span-3">
                     <input
@@ -79,7 +76,7 @@ export default function New() {
                       id="title"
                       required
                       placeholder="Note title..."
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-base-200 dark:border-gray-800"
                       onChange={(e) => setTitle(e.target.value)}
                       value={title}
                     />
@@ -89,7 +86,7 @@ export default function New() {
                       id="noteText"
                       name="noteText"
                       rows={10}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-base-200 dark:border-gray-800"
                       placeholder="Write your note here..."
                       onChange={(e) => setText(e.target.value)}
                       value={text}
@@ -97,7 +94,7 @@ export default function New() {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between items-center bg-gray-50 px-4 py-3 sm:px-6">
+              <div className="flex justify-between items-center bg-gray-50 px-4 py-3 sm:px-6 dark:bg-base-100 mb-20">
                 <button
                   type="submit"
                   className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -118,14 +115,9 @@ export default function New() {
                     name="pinned"
                     id="pinned"
                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    onChange={(e) => console.log(e.target.checked)}
+                    ref={checkBoxRef}
+                    onChange={handleCheckBox}
                   />
-                  {/* <div
-                    className={`w-6 h-6 rounded-full ${
-                      isPinned ? "bg-blue-600" : "bg-red-600"
-                    }`}
-                    onClick={handleToggle}
-                  ></div> */}
                 </div>
               </div>
             </div>

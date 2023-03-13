@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -22,6 +22,12 @@ export default function Login() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (localStorage.getItem("userData")) {
+      navigate("/home");
+    }
+  }, []);
+
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -44,6 +50,9 @@ export default function Login() {
         status: true,
         email: data.data.data?.userData.email as string,
       });
+
+      console.log(user.status);
+
       setEmail("");
       setPassword("");
       navigate("/home");

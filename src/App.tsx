@@ -16,6 +16,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import { createContext, Dispatch, SetStateAction, useState } from "react";
+import LandingPage from "./pages/LandingPage";
 
 type User = {
   name: string;
@@ -27,12 +28,6 @@ interface UserContextInterface {
   user: User;
   setUser: Dispatch<SetStateAction<User>>;
 }
-
-type userContextType = {
-  name: string;
-  email: string | undefined;
-  status: boolean;
-};
 
 const defaultState = {
   user: {
@@ -57,6 +52,7 @@ const router = createBrowserRouter(
         <Route path="/login" element={<Login />} />
       </Route>
       <Route path="/" element={<LandingPageLayout />}>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/tos" element={<Tos />} />
       </Route>

@@ -22,17 +22,13 @@ const API_URL: string = import.meta.env.DEV
 export default function Home() {
   const { user } = useContext(UserContext);
 
-  console.log(user.name);
-
   const id: string = JSON.parse(localStorage.getItem("userData")!).id;
 
   const getNotes = async (): Promise<NoteType[]> => {
     try {
       const response = await axios.get(`${API_URL}/notes/getAll/${id}`);
-      console.log(response.data);
       return response.data;
     } catch (error: any) {
-      console.error(error);
       return error;
     }
   };
@@ -54,10 +50,20 @@ export default function Home() {
     );
   }
 
+  let firstName: string = localStorage.getItem("userData")
+    ? JSON.parse(localStorage.getItem("userData")!).firstName
+    : user
+    ? user.name.split(" ")[0]
+    : "N/A";
+
+  console.log(user.name.split(" ")[0]);
+  console.log(JSON.parse(localStorage.getItem("userData")!).firstName);
+  console.log("firstName :", firstName);
+
   return (
     <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 flex-grow mb-8">
-      <h1 className="my-8 text-xl text-center gray-800 p-4 bg-yellow-200 border border-yellow-300 shadow-sm rounded-sm">
-        Hey {user.name.split(" ")[0]}, start your day by creating a new note!
+      <h1 className="my-8 text-xl text-center gray-800 p-4 bg-yellow-200 border border-yellow-300 shadow-sm rounded-sm dark:text-gray-800">
+        Hey {firstName}, start your day by creating a new note!
       </h1>
       {data?.length === 0 ? (
         <div className="text-2xl text-center flex gap-4 items-center justify-center flex-wrap">

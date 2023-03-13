@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { FormEvent, useState, ChangeEvent, useContext } from "react";
+import { FormEvent, useState, ChangeEvent, useContext, useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
@@ -42,6 +42,12 @@ export default function Register() {
   const [cookies, setCookies] = useCookies(["access_token"]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem("userData")) {
+      navigate("/home");
+    }
+  }, []);
 
   const queryClient = useQueryClient();
 

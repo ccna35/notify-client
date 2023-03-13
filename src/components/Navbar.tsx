@@ -23,8 +23,6 @@ export default function Navbar() {
   const [cookies, setCookies] = useCookies(["access_token"]);
   const navigate = useNavigate();
 
-  console.log(cookies.access_token);
-
   const signOut = () => {
     setCookies("access_token", "");
     localStorage.removeItem("userData");
@@ -40,6 +38,33 @@ export default function Navbar() {
   const publicPages: string[] = ["Register", "Login"];
   // This array includes the pages we don't want to show if the user isn't signed in;
   const privatePages: string[] = ["Home", "New"];
+
+  // if (user.status) {
+  //   checkUser = true;
+  // } else if (localStorage.getItem("userData")) {
+  //   checkUser = true;
+  // } else {
+  //   checkUser = false;
+  // }
+
+  let checkUser: boolean = user.status
+    ? true
+    : localStorage.getItem("userData")
+    ? true
+    : false;
+
+  // let a: boolean = false;
+  // let b: boolean = true;
+
+  // let c: boolean = a || b;
+
+  // console.log("C : ", c);
+
+  // const checkUser = user.status ?? localStorage.getItem("userData");
+
+  console.log("User status: ", user.status);
+  console.log("Local Storage: ", localStorage.getItem("userData"));
+  console.log("checkUser: ", checkUser);
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -76,7 +101,7 @@ export default function Navbar() {
                   <div className="flex space-x-4">
                     {navigation
                       .filter((item) =>
-                        user.status
+                        user.status || localStorage.getItem("userData")
                           ? !publicPages.includes(item.name)
                           : !user.status
                           ? !privatePages.includes(item.name)
@@ -100,7 +125,7 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-              {user.status && (
+              {checkUser && (
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                   <button
                     type="button"
@@ -185,7 +210,7 @@ export default function Navbar() {
             <div className="space-y-1 px-2 pt-2 pb-3">
               {navigation
                 .filter((item) =>
-                  user.status
+                  user.status || localStorage.getItem("userData")
                     ? !publicPages.includes(item.name)
                     : !user.status
                     ? !privatePages.includes(item.name)

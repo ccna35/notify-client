@@ -55,16 +55,23 @@ function Navbar() {
             </li>
           </ul>
         </div>
-        <a className="btn btn-ghost normal-case text-xl">daisyUI</a>
+        <a className="btn btn-ghost normal-case text-xl">
+          <img
+            className="h-8 w-auto"
+            src="../../calendar-svgrepo-com.svg"
+            alt="Notify"
+          />
+          <p className="text-white ml-2">Notify</p>
+        </a>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <a>Item 1</a>
+            <a>Porducts</a>
           </li>
           <li tabIndex={0}>
             <a>
-              Parent
+              Services
               <svg
                 className="fill-current"
                 xmlns="http://www.w3.org/2000/svg"
@@ -77,20 +84,23 @@ function Navbar() {
             </a>
             <ul className="p-2 bg-base-100 shadow-lg">
               <li>
-                <a>Submenu 1</a>
+                <a>Setting Goals</a>
               </li>
               <li>
-                <a>Submenu 2</a>
+                <a>Tracking Progress</a>
               </li>
             </ul>
           </li>
           <li>
-            <a>Item 3</a>
+            <a>Pricing</a>
           </li>
         </ul>
       </div>
-      <div className="navbar-end">
-        <Link to="/register" className="btn">
+      <div className="navbar-end gap-4">
+        <Link to="/login" className="btn">
+          Login
+        </Link>
+        <Link to="/register" className="btn btn-primary">
           Get started
         </Link>
       </div>

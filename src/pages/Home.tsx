@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Note from "../components/Note";
 import Spinner from "../components/Loaders/Spinner";
-import { useContext } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 import { UserContext } from "../App";
 
 export type NoteType = {
@@ -56,15 +56,43 @@ export default function Home() {
     ? user.name.split(" ")[0]
     : "N/A";
 
-  console.log(user.name.split(" ")[0]);
-  console.log(JSON.parse(localStorage.getItem("userData")!).firstName);
-  console.log("firstName :", firstName);
+  const [filteredNotes, setFilteredNotes] = useState(data);
+
+  // const handleSearch = (query: ChangeEvent<HTMLInputElement>) => {
+  //   console.log(query.target.value);
+  //   setFilteredNotes((prev) => prev?.includes(query.target.value));
+  // };
 
   return (
     <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 flex-grow mb-8">
       <h1 className="my-8 text-xl text-center gray-800 p-4 bg-yellow-200 border border-yellow-300 shadow-sm rounded-sm dark:text-gray-800">
         Hey {firstName}, start your day by creating a new note!
       </h1>
+      <div className="form-control mb-8">
+        <div className="input-group">
+          <input
+            type="text"
+            placeholder="Search…"
+            className="input input-bordered"
+          />
+          <button className="btn btn-square">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
       {data?.length === 0 ? (
         <div className="text-2xl text-center flex gap-4 items-center justify-center flex-wrap">
           <p>Oops! looks like you haven't created any notes yet.</p>

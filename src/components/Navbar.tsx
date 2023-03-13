@@ -39,32 +39,11 @@ export default function Navbar() {
   // This array includes the pages we don't want to show if the user isn't signed in;
   const privatePages: string[] = ["Home", "New"];
 
-  // if (user.status) {
-  //   checkUser = true;
-  // } else if (localStorage.getItem("userData")) {
-  //   checkUser = true;
-  // } else {
-  //   checkUser = false;
-  // }
-
   let checkUser: boolean = user.status
     ? true
     : localStorage.getItem("userData")
     ? true
     : false;
-
-  // let a: boolean = false;
-  // let b: boolean = true;
-
-  // let c: boolean = a || b;
-
-  // console.log("C : ", c);
-
-  // const checkUser = user.status ?? localStorage.getItem("userData");
-
-  console.log("User status: ", user.status);
-  console.log("Local Storage: ", localStorage.getItem("userData"));
-  console.log("checkUser: ", checkUser);
 
   return (
     <Disclosure as="nav" className="bg-gray-800">

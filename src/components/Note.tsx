@@ -13,10 +13,8 @@ const API_URL: string = import.meta.env.DE
   : import.meta.env.VITE_REACT_PROD_API_URL;
 
 const Note: FunctionComponent<NoteType> = (note) => {
-  console.log(note);
-
-  const newDate = dayjs(note.createdAt).format("ddd MMM YYYY h:m A");
   dayjs.extend(relativeTime);
+  const newDate = dayjs(note.createdAt).fromNow();
 
   const queryClient = useQueryClient();
 
@@ -38,25 +36,27 @@ const Note: FunctionComponent<NoteType> = (note) => {
 
   return (
     <motion.div
-      className="p-5 flex flex-col gap-4 self-start justify-between overflow-hidden rounded-md bg-white shadow-sm duration-500 hover:shadow-md border hover:border-gray-400 dark:bg-base-200 dark:border-gray-800"
+      className="p-5 flex flex-col gap-4 self-start justify-between overflow-hidden rounded-md bg-white shadow-sm duration-500 hover:shadow-md border hover:border-gray-400 dark:bg-base-200 dark:border-gray-800 h-60"
       layout
       initial={{ opacity: 0.5 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {note.pinned && (
-        <p className="text-sm p-2 rounded-sm bg-slate-200 self-start">Pinned</p>
+        <p className="text-sm py-1 px-2 rounded-sm bg-yellow-400 self-start dark:text-gray-700">
+          Pinned
+        </p>
       )}
 
       <h2 className="text-lg font-medium w-11/12 truncate dark:text-gray-200">
         {note.title}
       </h2>
-      <p className="text-gray-700 text-lg self-start w-11/12 truncate dark:text-gray-300">
+      <p className="text-gray-700 text-lg self-start w-11/12 truncate dark:text-gray-300 flex-grow">
         {note.text}
       </p>
       <div className="flex justify-between items-center">
         <p className="text-sm p-2 rounded-sm bg-slate-200 self-start dark:text-gray-700">
-          {dayjs(note.createdAt).fromNow()}
+          {newDate}
         </p>
         <svg
           xmlns="http://www.w3.org/2000/svg"

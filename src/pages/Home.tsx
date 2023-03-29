@@ -27,7 +27,15 @@ export default function Home() {
   const getNotes = async (): Promise<NoteType[]> => {
     try {
       const response = await axios.get(`${API_URL}/notes/getAll/${id}`);
-      return response.data;
+      console.log(
+        [...response.data]
+          .filter((note) => note.pinned)
+          .concat([...response.data].filter((note) => !note.pinned))
+      );
+
+      return [...response.data]
+        .filter((note) => note.pinned)
+        .concat([...response.data].filter((note) => !note.pinned));
     } catch (error: any) {
       return error;
     }

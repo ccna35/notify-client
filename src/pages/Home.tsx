@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Note from "../components/Note";
 import Spinner from "../components/Loaders/Spinner";
-import { ChangeEvent, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../App";
 
 export type NoteType = {
@@ -34,7 +34,7 @@ export default function Home() {
   };
 
   // Access the client
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
   // Queries
   const { data, isLoading } = useQuery({
@@ -55,8 +55,9 @@ export default function Home() {
     : user
     ? user.name.split(" ")[0]
     : "N/A";
+  // let firstName: string = "FirstName";
 
-  const [filteredNotes, setFilteredNotes] = useState(data);
+  // const [filteredNotes, setFilteredNotes] = useState(data);
 
   // const handleSearch = (query: ChangeEvent<HTMLInputElement>) => {
   //   console.log(query.target.value);

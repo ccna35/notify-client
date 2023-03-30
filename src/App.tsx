@@ -17,6 +17,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import { createContext, Dispatch, SetStateAction, useState } from "react";
 import LandingPage from "./pages/LandingPage";
+import Premium from "./pages/Premium";
 
 type User = {
   name: string;
@@ -47,6 +48,7 @@ const router = createBrowserRouter(
         <Route element={<ProtectedRoutes />}>
           <Route path="/home" element={<Home />} />
           <Route path="/new" element={<New />} />
+          <Route path="/premium" element={<Premium />} />
         </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />

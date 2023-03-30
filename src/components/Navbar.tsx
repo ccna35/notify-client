@@ -11,6 +11,7 @@ const navigation = [
   { name: "Register", href: "#", current: false },
   { name: "Login", href: "#", current: false },
   { name: "New", href: "#", current: false },
+  { name: "Premium", href: "#", current: false, special: true },
 ];
 
 function classNames<T, G>(T: string, G: string) {
@@ -92,9 +93,11 @@ export default function Navbar() {
                           key={item.name}
                           className={classNames(
                             item.current
-                              ? "bg-gray-900 text-white"
+                              ? `bg-gray-900 text-white`
                               : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                            "px-3 py-2 rounded-md text-sm font-medium"
+                            `px-3 py-2 rounded-md text-sm font-medium ${
+                              item.special && "bg-yellow-400 text-gray-700"
+                            }`
                           )}
                           aria-current={item.current ? "page" : undefined}
                         >
@@ -201,9 +204,11 @@ export default function Navbar() {
                     to={item.name.toLowerCase()}
                     className={classNames(
                       item.current
-                        ? "bg-gray-900 text-white"
+                        ? `bg-gray-900 text-white`
                         : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                      "block px-3 py-2 rounded-md text-base font-medium"
+                      `block px-3 py-2 rounded-md text-base font-medium ${
+                        item.special && "text-yellow-400 text-gray-700"
+                      }`
                     )}
                     aria-current={item.current ? "page" : undefined}
                   >

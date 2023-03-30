@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Note from "../components/Note";
 import Spinner from "../components/Loaders/Spinner";
-import { useContext, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 import { UserContext } from "../App";
 
 export type NoteType = {
@@ -20,6 +20,8 @@ const API_URL: string = import.meta.env.DEV
   : import.meta.env.VITE_REACT_PROD_API_URL;
 
 export default function Home() {
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   const { user } = useContext(UserContext);
 
   const id: string = JSON.parse(localStorage.getItem("userData")!).id;
@@ -63,13 +65,15 @@ export default function Home() {
     : user
     ? user.name.split(" ")[0]
     : "N/A";
-  // let firstName: string = "FirstName";
-
-  // const [filteredNotes, setFilteredNotes] = useState(data);
 
   // const handleSearch = (query: ChangeEvent<HTMLInputElement>) => {
-  //   console.log(query.target.value);
-  //   setFilteredNotes((prev) => prev?.includes(query.target.value));
+  //   setSearchQuery((prev) => prev + query.target.value);
+  //   console.log(
+  //     [...data[Symbol.iterator]()].filter((note) =>
+  //       note.title.includes(query.target.value)
+  //     )
+  //   );
+
   // };
 
   return (
@@ -77,31 +81,26 @@ export default function Home() {
       <h1 className="my-8 text-xl text-center gray-800 p-4 bg-yellow-200 border border-yellow-300 shadow-sm rounded-sm dark:text-gray-800">
         Hey {firstName}, start your day by creating a new note!
       </h1>
-      <div className="form-control mb-8">
+      {/* <div className="form-control mb-8">
         <div className="input-group">
           <input
             type="text"
             placeholder="Search…"
-            className="input input-bordered"
+            className="input input-bordered rounded-none"
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+            }}
           />
-          <button className="btn btn-square">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </button>
         </div>
-      </div>
+      </div> */}
+      <input
+        type="text"
+        placeholder="Search…"
+        className="input input-bordered input-md text-base w-full max-w-xs mb-8"
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+        }}
+      />
       {data?.length === 0 ? (
         <div className="text-2xl text-center flex gap-4 items-center justify-center flex-wrap">
           <p>Oops! looks like you haven't created any notes yet.</p>
@@ -113,17 +112,23 @@ export default function Home() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data?.map((note: any) => (
-            <Note
-              key={note._id}
-              title={note.title}
-              text={note.text}
-              _id={note._id}
-              pinned={note.pinned}
-              createdAt={note.createdAt}
-              updatedAt={note.updatedAt}
-            />
-          ))}
+          {data
+            ?.filter(
+              (note) =>
+                note.title.toLowerCase().includes(searchQuery) ||
+                note.text.toLowerCase().includes(searchQuery)
+            )
+            .map((note: any) => (
+              <Note
+                key={note._id}
+                title={note.title}
+                text={note.text}
+                _id={note._id}
+                pinned={note.pinned}
+                createdAt={note.createdAt}
+                updatedAt={note.updatedAt}
+              />
+            ))}
         </div>
       )}
     </div>

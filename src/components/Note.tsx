@@ -1,18 +1,37 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import dayjs from "dayjs";
-import { ErrorInfo, FC, Fragment, FunctionComponent, useState } from "react";
+import {
+  ErrorInfo,
+  FC,
+  Fragment,
+  FunctionComponent,
+  useContext,
+  useState,
+} from "react";
 import { NoteType } from "../pages/Home";
 import { motion } from "framer-motion";
-// import Modal from "react-modal";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Dialog, Transition } from "@headlessui/react";
+import { useNavigate } from "react-router-dom";
+import { UserContext, useUserStore } from "../App";
+import { useCookies } from "react-cookie";
 
 const API_URL: string = import.meta.env.DE
   ? import.meta.env.VITE_REACT_DEV_API_URL
   : import.meta.env.VITE_REACT_PROD_API_URL;
 
 const Note: FunctionComponent<NoteType> = (note) => {
+  const darkMode = useUserStore((state) => state.darkMode);
+
+  const { user, setUser } = useContext(UserContext);
+
+  const [cookies, setCookies] = useCookies(["access_token"]);
+
+  const token: string = cookies.access_token;
+
+  const navigate = useNavigate();
+
   dayjs.extend(relativeTime);
   const newDate = dayjs(note.createdAt).fromNow();
 
@@ -20,7 +39,11 @@ const Note: FunctionComponent<NoteType> = (note) => {
 
   const mutation = useMutation({
     mutationFn: async (id: string | undefined) => {
-      return axios.delete(`${API_URL}/notes/delete/${id}`);
+      return axios.delete(`${API_URL}/notes/delete/${id}`, {
+        headers: {
+          Authorization: token,
+        },
+      });
     },
     onSuccess: () => {
       // Invalidate and refetch
@@ -29,6 +52,16 @@ const Note: FunctionComponent<NoteType> = (note) => {
     },
     onError: (error: any) => {
       console.log(error);
+      if (error) {
+        setCookies("access_token", "");
+        localStorage.removeItem("userData");
+        setUser({
+          name: "",
+          email: "",
+          status: false,
+        });
+        navigate("/login");
+      }
     },
   });
 
@@ -36,7 +69,9 @@ const Note: FunctionComponent<NoteType> = (note) => {
 
   return (
     <motion.div
-      className="p-5 flex flex-col gap-4 self-start justify-between overflow-hidden rounded-md bg-white shadow-sm duration-500 hover:shadow-md border hover:border-gray-400 dark:bg-base-200 dark:border-gray-800 h-60"
+      className={`p-5 flex flex-col gap-4 self-start justify-between overflow-hidden rounded-md bg-white shadow-sm duration-500 hover:shadow-md border hover:border-gray-400 dark:bg-base-300 dark:border-gray-800 h-60${
+        darkMode && "dark"
+      }`}
       layout
       initial={{ opacity: 0.5 }}
       animate={{ opacity: 1 }}

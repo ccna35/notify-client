@@ -18,6 +18,26 @@ import ProtectedRoutes from "./components/ProtectedRoutes";
 import { createContext, Dispatch, SetStateAction, useState } from "react";
 import LandingPage from "./pages/LandingPage";
 import Premium from "./pages/Premium";
+import { create } from "zustand";
+
+// Zustand logic
+interface UserState {
+  name: string;
+  darkMode: boolean;
+  token: string;
+  updateToken: (by: string) => void;
+  updateTheme: () => void;
+}
+
+export const useUserStore = create<UserState>()((set) => ({
+  name: "",
+  darkMode: false,
+  token: "",
+  updateToken: (by) => set((state) => ({ token: by })),
+  updateTheme: () => set((state) => ({ darkMode: !state.darkMode })),
+}));
+
+// End Zustand logic
 
 type User = {
   name: string;

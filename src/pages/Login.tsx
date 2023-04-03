@@ -5,13 +5,17 @@ import axios from "axios";
 import useCookies from "react-cookie/cjs/useCookies";
 import { Link, useNavigate } from "react-router-dom";
 import { UserType } from "./Register";
-import { UserContext } from "../App";
+import { UserContext, useUserStore } from "../App";
 
 const API_URL: string = import.meta.env.DEV
   ? import.meta.env.VITE_REACT_DEV_API_URL
   : import.meta.env.VITE_REACT_PROD_API_URL;
 
 export default function Login() {
+  const updateToken = useUserStore((state) => state.updateToken);
+  const updateTheme = useUserStore((state) => state.updateTheme);
+  const darkMode = useUserStore((state) => state.darkMode);
+
   const { user, setUser } = useContext(UserContext);
 
   const [email, setEmail] = useState<string>("");
@@ -22,22 +26,27 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (localStorage.getItem("userData")) {
-      navigate("/home");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (localStorage.getItem("userData")) {
+  //     navigate("/home");
+  //   }
+  // }, []);
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: (newUser: UserType) => {
-      return axios.post<UserType>(`${API_URL}/users/login`, newUser);
+      return axios.post<UserType>(`${API_URL}/users/login`, newUser, {
+        withCredentials: true,
+      });
     },
     onSuccess: (data) => {
+      console.log("onSuccess: ", data);
+
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      setCookies("access_token", data.data.data?.token);
+      updateToken(data.data.data?.accessToken as string);
+      setCookies("access_token", data.data.data?.accessToken);
       localStorage.setItem(
         "userData",
         JSON.stringify(data.data.data?.userData)
@@ -59,21 +68,26 @@ export default function Login() {
     },
     onError: (error: any) => {
       setError(error.response.data.message);
-      console.log(error.response.data.message);
+      console.log("onError: ", error.response.data.message);
     },
   });
 
   return (
     <>
-      <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div
+        className={`flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ${
+          darkMode && "dark"
+        }`}
+      >
         <div className="w-full max-w-md space-y-8">
           <div>
             <img
               className="mx-auto h-12 w-auto"
               src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
               alt="Your Company"
+              onClick={() => updateTheme()}
             />
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
               Sign in to your account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">

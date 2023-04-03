@@ -8,7 +8,7 @@ import { NoteType } from "./Home";
 
 export type UserType = {
   data?: {
-    token: string;
+    accessToken: string;
     userData: {
       id: string;
       email: string | undefined;
@@ -21,7 +21,7 @@ export type UserType = {
   email: string;
   password: string;
   secondPassword?: string;
-  token?: string;
+  accessToken?: string;
 };
 
 const API_URL: string = import.meta.env.DEV
@@ -77,7 +77,7 @@ export default function Register() {
     onSuccess: (data) => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      setCookies("access_token", data.data.data?.token);
+      setCookies("access_token", data.data.data?.accessToken);
       localStorage.setItem(
         "userData",
         JSON.stringify(data.data.data?.userData)

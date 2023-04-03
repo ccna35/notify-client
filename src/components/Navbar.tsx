@@ -1,10 +1,10 @@
-import { Fragment, useContext } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { Fragment, useContext, useState } from "react";
+import { Disclosure, Menu, Transition, Switch } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import useCookies from "react-cookie/cjs/useCookies";
-import { UserContext } from "../App";
+import { UserContext, useUserStore } from "../App";
 
 const navigation = [
   { name: "Home", href: "#", current: true },
@@ -19,6 +19,11 @@ function classNames<T, G>(T: string, G: string) {
 }
 
 export default function Navbar() {
+  const [enabled, setEnabled] = useState<boolean>(false);
+
+  const updateTheme = useUserStore((state) => state.updateTheme);
+  const darkMode = useUserStore((state) => state.darkMode);
+
   const { user, setUser } = useContext(UserContext);
 
   const [cookies, setCookies] = useCookies(["access_token"]);
@@ -38,7 +43,7 @@ export default function Navbar() {
   // This array includes the pages we don't want to show if the user is already signed in;
   const publicPages: string[] = ["Register", "Login"];
   // This array includes the pages we don't want to show if the user isn't signed in;
-  const privatePages: string[] = ["Home", "New"];
+  const privatePages: string[] = ["Home", "New", "Premium"];
 
   let checkUser: boolean = user.status
     ? true
@@ -65,17 +70,21 @@ export default function Navbar() {
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <img
-                    className="block h-8 w-auto lg:hidden"
-                    src="../calendar-svgrepo-com.svg"
-                    alt="Notify"
-                  />
+                  <Link to="/">
+                    <img
+                      className="block h-8 w-auto lg:hidden"
+                      src="../calendar-svgrepo-com.svg"
+                      alt="Notify"
+                    />
+                  </Link>
 
-                  <img
-                    className="hidden h-8 w-auto lg:block"
-                    src="../calendar-svgrepo-com.svg"
-                    alt="Notify"
-                  />
+                  <Link to="/">
+                    <img
+                      className="hidden h-8 w-auto lg:block"
+                      src="../calendar-svgrepo-com.svg"
+                      alt="Notify"
+                    />
+                  </Link>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
@@ -116,6 +125,21 @@ export default function Navbar() {
                     <span className="sr-only">View notifications</span>
                     <BellIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
+
+                  <Switch
+                    checked={darkMode}
+                    onChange={() => updateTheme()}
+                    className={`${
+                      darkMode ? "bg-blue-600" : "bg-gray-200"
+                    } relative inline-flex h-6 w-11 items-center rounded-full`}
+                  >
+                    <span className="sr-only">Enable notifications</span>
+                    <span
+                      className={`${
+                        darkMode ? "translate-x-6" : "translate-x-1"
+                      } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+                    />
+                  </Switch>
 
                   {/* Profile dropdown */}
 

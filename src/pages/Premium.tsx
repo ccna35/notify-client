@@ -1,5 +1,4 @@
 import { CheckIcon } from "@heroicons/react/20/solid";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -19,33 +18,13 @@ export type PaymentResponse = {
   request: {};
 };
 
-const API_URL: string = import.meta.env.DEV
-  ? import.meta.env.VITE_REACT_DEV_API_URL
-  : import.meta.env.VITE_REACT_PROD_API_URL;
-
 export default function Premium() {
   const navigate = useNavigate();
 
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: () => {
-      return axios.post(`${API_URL}/create-checkout-session`);
-    },
-    onSuccess: (data) => {
-      console.log(data.data.url);
-
-      window.location.href = data.data.url;
-    },
-    onError: (error: any) => {
-      console.log(error);
-    },
-  });
-
   return (
-    <div className="py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl sm:text-center">
+    <div className="py-16 dark:bg-slate-950">
+      <div className="container">
+        <div className="sm:text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-200">
             Simple no-tricks pricing
           </h2>
@@ -101,7 +80,6 @@ export default function Premium() {
                 </p>
                 <button
                   className="mt-10 block w-full rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                  onClick={() => mutation.mutate()}
                   type="button"
                 >
                   Get access

@@ -4,10 +4,12 @@ import Navbar from "../components/Navbar";
 
 export default function RootLayout() {
   return (
-    <div className="min-h-screen flex flex-col justify-between">
+    <>
       <Navbar />
-      <Outlet />
+      <main>
+        <Outlet />
+      </main>
       <Footer />
-    </div>
+    </>
   );
 }

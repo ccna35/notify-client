@@ -1,11 +1,7 @@
-import { useCookies } from "react-cookie";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import { useUserStore } from "../App";
 
 function ProtectedRoutes() {
-  // const [cookies, setCookies] = useCookies(["access_token"]);
-
-  const accessToken = useUserStore((state) => state.token);
+  const accessToken = true;
 
   let isAuth: boolean;
 

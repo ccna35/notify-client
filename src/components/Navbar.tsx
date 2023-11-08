@@ -1,17 +1,28 @@
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useState } from "react";
 import { Disclosure, Menu, Transition, Switch } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import useCookies from "react-cookie/cjs/useCookies";
-import { UserContext, useUserStore } from "../App";
+import { useAppSelector } from "../app/hooks";
+import { clearUser, userSelector } from "../app/slices/authSlice";
+import { switchTheme, themeSelector } from "../app/slices/themeSlice";
+import { useAppDispatch } from "../store/store";
 
-const navigation = [
-  { name: "Home", href: "#", current: true },
-  { name: "Register", href: "#", current: false },
-  { name: "Login", href: "#", current: false },
-  { name: "New", href: "#", current: false },
-  { name: "Premium", href: "#", current: false, special: true },
+type Page = {
+  name: string;
+  current: boolean;
+  special?: boolean;
+};
+
+const publicPages: Page[] = [
+  { name: "Register", current: false },
+  { name: "Login", current: false },
+];
+const privatePages: Page[] = [
+  { name: "Home", current: true },
+  { name: "New", current: false },
+  { name: "Categories", current: false },
+  { name: "Premium", current: false, special: true },
 ];
 
 function classNames<T, G>(T: string, G: string) {
@@ -19,43 +30,23 @@ function classNames<T, G>(T: string, G: string) {
 }
 
 export default function Navbar() {
-  const [enabled, setEnabled] = useState<boolean>(false);
-
-  const updateTheme = useUserStore((state) => state.updateTheme);
-  const darkMode = useUserStore((state) => state.darkMode);
-
-  const { user, setUser } = useContext(UserContext);
-
-  const [cookies, setCookies] = useCookies(["access_token"]);
+  const [enabled, setEnabled] = useState(false);
   const navigate = useNavigate();
 
+  const { isLoggedIn } = useAppSelector(userSelector);
+  const { darkMode } = useAppSelector(themeSelector);
+  const dispatch = useAppDispatch();
+
   const signOut = () => {
-    setCookies("access_token", "");
-    localStorage.removeItem("userData");
-    setUser({
-      name: "",
-      email: "",
-      status: false,
-    });
+    dispatch(clearUser());
     navigate("/login");
   };
 
-  // This array includes the pages we don't want to show if the user is already signed in;
-  const publicPages: string[] = ["Register", "Login"];
-  // This array includes the pages we don't want to show if the user isn't signed in;
-  const privatePages: string[] = ["Home", "New", "Premium"];
-
-  let checkUser: boolean = user.status
-    ? true
-    : localStorage.getItem("userData")
-    ? true
-    : false;
-
   return (
-    <Disclosure as="nav" className="bg-gray-800">
-      {({ open }) => (
+    <Disclosure as="nav" className="bg-slate-950 sticky top-0">
+      {({ open, close }) => (
         <>
-          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+          <div className="container">
             <div className="relative flex h-16 items-center justify-between">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 {/* Mobile menu button*/}
@@ -88,56 +79,57 @@ export default function Navbar() {
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
-                    {navigation
-                      .filter((item) =>
-                        user.status || localStorage.getItem("userData")
-                          ? !publicPages.includes(item.name)
-                          : !user.status
-                          ? !privatePages.includes(item.name)
-                          : item
-                      )
-                      .map((item) => (
-                        <NavLink
-                          to={item.name.toLowerCase()}
-                          key={item.name}
-                          className={classNames(
-                            item.current
-                              ? `bg-gray-900 text-white`
-                              : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                            `px-3 py-2 rounded-md text-sm font-medium ${
-                              item.special && "bg-yellow-400 text-gray-700"
-                            }`
-                          )}
-                          aria-current={item.current ? "page" : undefined}
-                        >
-                          {item.name}
-                        </NavLink>
-                      ))}
+                    {(isLoggedIn ? privatePages : publicPages).map((item) => (
+                      <NavLink
+                        to={item.name.toLowerCase()}
+                        key={item.name}
+                        className={classNames(
+                          item.current
+                            ? `bg-gray-900 text-white`
+                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                          `px-3 py-2 rounded-md text-sm font-medium transition ${
+                            item.special && "bg-yellow-400 text-gray-900"
+                          }`
+                        )}
+                        aria-current={item.current ? "page" : undefined}
+                      >
+                        {item.name}
+                      </NavLink>
+                    ))}
                   </div>
                 </div>
               </div>
-              {checkUser && (
+              {isLoggedIn && (
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  <button
+                  {/* <button
                     type="button"
                     className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                   >
                     <span className="sr-only">View notifications</span>
                     <BellIcon className="h-6 w-6" aria-hidden="true" />
-                  </button>
+                  </button> */}
 
                   <Switch
                     checked={darkMode}
-                    onChange={() => updateTheme()}
+                    onChange={() => {
+                      dispatch(switchTheme());
+                      if (darkMode) {
+                        document.documentElement.removeAttribute("class");
+                      } else {
+                        document.documentElement.setAttribute("class", "dark");
+                      }
+                    }}
                     className={`${
-                      darkMode ? "bg-blue-600" : "bg-gray-200"
-                    } relative inline-flex h-6 w-11 items-center rounded-full`}
+                      darkMode ? "bg-indigo-600" : "bg-gray-200"
+                    } relative inline-flex h-6 w-11 items-center rounded-full transition duration-500`}
                   >
                     <span className="sr-only">Enable notifications</span>
                     <span
                       className={`${
-                        darkMode ? "translate-x-6" : "translate-x-1"
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+                        darkMode
+                          ? "translate-x-6 bg-white"
+                          : "translate-x-1 bg-gray-600"
+                      } inline-block h-4 w-4 transform rounded-full transition duration-500`}
                     />
                   </Switch>
 
@@ -212,33 +204,26 @@ export default function Navbar() {
             </div>
           </div>
 
-          <Disclosure.Panel className="sm:hidden">
+          <Disclosure.Panel>
             <div className="space-y-1 px-2 pt-2 pb-3">
-              {navigation
-                .filter((item) =>
-                  user.status || localStorage.getItem("userData")
-                    ? !publicPages.includes(item.name)
-                    : !user.status
-                    ? !privatePages.includes(item.name)
-                    : item
-                )
-                .map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.name.toLowerCase()}
-                    className={classNames(
-                      item.current
-                        ? `bg-gray-900 text-white`
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                      `block px-3 py-2 rounded-md text-base font-medium ${
-                        item.special && "text-yellow-400 text-gray-700"
-                      }`
-                    )}
-                    aria-current={item.current ? "page" : undefined}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+              {(isLoggedIn ? privatePages : publicPages).map((item) => (
+                <Disclosure.Button
+                  as={Link}
+                  to={item.name.toLowerCase()}
+                  className={classNames(
+                    item.current
+                      ? `bg-gray-900 text-white`
+                      : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                    `block px-3 py-2 rounded-md text-base font-medium transition ${
+                      item.special && "bg-yellow-400 text-gray-900"
+                    }`
+                  )}
+                  aria-current={item.current ? "page" : undefined}
+                  key={item.name}
+                >
+                  {item.name}
+                </Disclosure.Button>
+              ))}
             </div>
           </Disclosure.Panel>
         </>

@@ -2,18 +2,14 @@
 module.exports = {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: ".5rem",
+        xl: "6rem",
+      },
+    },
     extend: {},
   },
-  plugins: [require("@tailwindcss/forms"), require("daisyui")],
-  daisyui: {
-    styled: true,
-    themes: true,
-    base: true,
-    utils: true,
-    logs: true,
-    rtl: false,
-    prefix: "",
-    darkTheme: "dark",
-  },
-  // darkMode: "class",
+  darkMode: "class",
 };

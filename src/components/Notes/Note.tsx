@@ -1,105 +1,77 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import dayjs from "dayjs";
-import {
-  ErrorInfo,
-  FC,
-  Fragment,
-  FunctionComponent,
-  useContext,
-  useState,
-} from "react";
-import { NoteType } from "../pages/Home";
+import { Fragment, useState } from "react";
 import { motion } from "framer-motion";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Dialog, Transition } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
-import { UserContext, useUserStore } from "../App";
-import { useCookies } from "react-cookie";
+import { useDeleteNoteMutation } from "../../app/api/noteApiSlice";
 
-const API_URL: string = import.meta.env.DE
-  ? import.meta.env.VITE_REACT_DEV_API_URL
-  : import.meta.env.VITE_REACT_PROD_API_URL;
+type NoteProps = {
+  title: string;
+  text: string;
+  id: number;
+  pinned: number;
+  createdAt: string;
+  category: string;
+};
 
-const Note: FunctionComponent<NoteType> = (note) => {
-  const darkMode = useUserStore((state) => state.darkMode);
-
-  const { user, setUser } = useContext(UserContext);
-
-  const [cookies, setCookies] = useCookies(["access_token"]);
-
-  const token: string = cookies.access_token;
-
+const Note = ({ id, createdAt, pinned, text, title, category }: NoteProps) => {
   const navigate = useNavigate();
 
   dayjs.extend(relativeTime);
-  const newDate = dayjs(note.createdAt).fromNow();
-
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: async (id: string | undefined) => {
-      return axios.delete(`${API_URL}/notes/delete/${id}`, {
-        headers: {
-          Authorization: token,
-        },
-      });
-    },
-    onSuccess: () => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      setIsOpen(false);
-    },
-    onError: (error: any) => {
-      console.log(error);
-      if (error) {
-        setCookies("access_token", "");
-        localStorage.removeItem("userData");
-        setUser({
-          name: "",
-          email: "",
-          status: false,
-        });
-        navigate("/login");
-      }
-    },
-  });
+  const newDate = dayjs(createdAt).fromNow();
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const [deleteNote, { isLoading }] = useDeleteNoteMutation();
+
+  const handleDelete = async () => {
+    try {
+      const res = await deleteNote(id).unwrap();
+      console.log(res);
+      setIsOpen(false);
+    } catch (error) {
+      setIsOpen(false);
+      console.log(error);
+    }
+  };
+
   return (
     <motion.div
-      className={`p-5 flex flex-col gap-4 self-start justify-between overflow-hidden rounded-md bg-white shadow-sm duration-500 hover:shadow-md border hover:border-gray-400 dark:bg-base-300 dark:border-gray-800 h-60${
-        darkMode && "dark"
-      }`}
+      className="max-w-xs p-5 flex flex-col gap-4 self-start justify-between overflow-hidden rounded-md bg-white shadow-sm duration-500 hover:shadow-md border hover:border-slate-400 dark:bg-slate-900 dark:border-slate-800 min-h-fit"
       layout
       initial={{ opacity: 0.5 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {note.pinned && (
-        <p className="text-sm py-1 px-2 rounded-sm bg-yellow-400 self-start dark:text-gray-700">
+      {pinned === 1 && (
+        <p className="text-sm py-1 px-2 rounded-sm bg-yellow-400 self-start dark:text-slate-700">
           Pinned
         </p>
       )}
 
-      <h2 className="text-lg font-medium w-11/12 truncate dark:text-gray-200">
-        {note.title}
+      <h2 className="text-lg font-medium w-11/12 truncate dark:text-indigo-500">
+        {title}
       </h2>
-      <p className="text-gray-700 text-lg self-start w-11/12 truncate dark:text-gray-300 flex-grow">
-        {note.text}
+      <p className="text-slate-700 text-base self-start w-11/12 dark:text-slate-100 flex-grow">
+        {text.slice(0, 100)}...
       </p>
       <div className="flex justify-between items-center">
-        <p className="text-sm p-2 rounded-sm bg-slate-200 self-start dark:text-gray-700">
-          {newDate}
-        </p>
+        <div className="flex gap-2">
+          <p className="text-sm p-2 rounded-sm bg-indigo-600 text-indigo-100 self-start ">
+            {category}
+          </p>
+          <p className="text-sm p-2 rounded-sm bg-indigo-200 text-indigo-800 self-star">
+            {newDate}
+          </p>
+        </div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
-          className="w-6 h-6 cursor-pointer hover:text-red-600 transition"
+          className="w-6 h-6 cursor-pointer text-red-600 hover:text-red-400 transition"
           onClick={() => setIsOpen(true)}
         >
           <path
@@ -138,15 +110,15 @@ const Note: FunctionComponent<NoteType> = (note) => {
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
                 >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-900 dark:border-slate-800">
                     <Dialog.Title
                       as="h3"
-                      className="text-lg font-medium leading-6 text-gray-900"
+                      className="text-lg font-medium leading-6 text-slate-700 dark:text-slate-200"
                     >
                       Are you sure you want to delete this note?
                     </Dialog.Title>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
                         If you delete this note, it will be moved temporarily to
                         the archive & will be deleted permanently in 30 days
                         unless you move it back to the active notes.
@@ -156,13 +128,10 @@ const Note: FunctionComponent<NoteType> = (note) => {
                     <div className="mt-4 flex gap-4">
                       <button
                         type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-blue-100 hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        onClick={() => {
-                          mutation.mutate(note._id);
-                        }}
-                        disabled={mutation.isLoading}
+                        className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        onClick={handleDelete}
                       >
-                        {mutation.isLoading ? "Loading..." : "Delete"}
+                        Delete
                       </button>
                       <button
                         type="button"

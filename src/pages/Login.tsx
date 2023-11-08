@@ -1,97 +1,68 @@
-import { useContext, useEffect, useState } from "react";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import useCookies from "react-cookie/cjs/useCookies";
 import { Link, useNavigate } from "react-router-dom";
-import { UserType } from "./Register";
-import { UserContext, useUserStore } from "../App";
+import Input from "../components/Inputs/Input";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { emailRegex } from "./Register";
+import { API_URL } from "../environment/env";
+import { useEffect } from "react";
+import { useAppDispatch } from "../store/store";
+import authSlice, { setUser, userSelector } from "../app/slices/authSlice";
+import { useAppSelector } from "../app/hooks";
 
-const API_URL: string = import.meta.env.DEV
-  ? import.meta.env.VITE_REACT_DEV_API_URL
-  : import.meta.env.VITE_REACT_PROD_API_URL;
+interface IFormInput {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
 
 export default function Login() {
-  const updateToken = useUserStore((state) => state.updateToken);
-  const updateTheme = useUserStore((state) => state.updateTheme);
-  const darkMode = useUserStore((state) => state.darkMode);
-
-  const { user, setUser } = useContext(UserContext);
-
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-
-  const [_, setCookies] = useCookies(["access_token"]);
-
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  // useEffect(() => {
-  //   if (localStorage.getItem("userData")) {
-  //     navigate("/home");
-  //   }
-  // }, []);
+  const { isLoggedIn } = useAppSelector(userSelector);
 
-  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/home");
+    }
+  }, []);
 
-  const mutation = useMutation({
-    mutationFn: (newUser: UserType) => {
-      return axios.post<UserType>(`${API_URL}/users/login`, newUser, {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>({ mode: "onChange" });
+
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    try {
+      const res = await axios.post(API_URL + "/users/login", data, {
         withCredentials: true,
       });
-    },
-    onSuccess: (data) => {
-      console.log("onSuccess: ", data);
-
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      updateToken(data.data.data?.accessToken as string);
-      setCookies("access_token", data.data.data?.accessToken);
-      localStorage.setItem(
-        "userData",
-        JSON.stringify(data.data.data?.userData)
-      );
-      setUser({
-        name:
-          data.data.data?.userData.firstName +
-          " " +
-          data.data.data?.userData.lastName,
-        status: true,
-        email: data.data.data?.userData.email as string,
-      });
-
-      console.log(user.status);
-
-      setEmail("");
-      setPassword("");
+      console.log(res);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      dispatch(setUser(res.data.user));
       navigate("/home");
-    },
-    onError: (error: any) => {
-      setError(error.response.data.message);
-      console.log("onError: ", error.response.data.message);
-    },
-  });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
-      <div
-        className={`flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ${
-          darkMode && "dark"
-        }`}
-      >
-        <div className="w-full max-w-md space-y-8">
+      <section className="flex min-h-screen bg-slate-50 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md flex flex-col items-center gap-8">
           <div>
-            <img
+            {/* <img
               className="mx-auto h-12 w-auto"
-              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+              src="../calendar-svgrepo-com.svg"
               alt="Your Company"
-              onClick={() => updateTheme()}
-            />
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            /> */}
+            <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
               Sign in to your account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              Or{" "}
+              <span className="mr-2">Or</span>
               <Link
                 to="/register"
                 className="font-medium text-indigo-600 hover:text-indigo-500"
@@ -101,68 +72,62 @@ export default function Login() {
             </p>
           </div>
           <form
-            className="mt-8 space-y-6"
-            method="POST"
-            onSubmit={(e) => {
-              e.preventDefault();
-              mutation.mutate({
-                email,
-                password,
-              });
-            }}
-            // onSubmit={(e) => handleSubmit(e)}
+            onSubmit={handleSubmit(onSubmit)}
+            className="w-full max-w-sm flex flex-col gap-4"
           >
             <input type="hidden" name="remember" defaultValue="true" />
-            <div className="-space-y-px rounded-md shadow-sm">
-              <div>
-                <label htmlFor="email-address" className="sr-only">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="email" className="sr-only">
                   Email address
                 </label>
-                <input
-                  id="email-address"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                  placeholder="Email address"
-                  onChange={(e) => setEmail(e.target.value)}
-                  value={email}
+                <Input
+                  placeholder="Email"
+                  type="text"
+                  id="email"
+                  register={register("email", {
+                    required: "This field is required",
+                    validate: {
+                      isEmail: (val) => {
+                        return (
+                          emailRegex.test(val) || "Please enter a valid email"
+                        );
+                      },
+                    },
+                  })}
                 />
+                {errors.email && (
+                  <small className="error">{errors.email.message}</small>
+                )}
               </div>
-              <div>
+              <div className="flex flex-col gap-2">
                 <label htmlFor="password" className="sr-only">
                   Password
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                <Input
                   placeholder="Password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  value={password}
+                  type="password"
+                  id="password"
+                  register={register("password", {
+                    required: "This field is required",
+                  })}
                 />
+                {errors.password && (
+                  <small className="error">{errors.password.message}</small>
+                )}
               </div>
             </div>
-            {error && (
-              <div className="bg-red-200 p-2 text-red-800 rounded border border-red-300">
-                {error}
-              </div>
-            )}
 
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
-                  id="remember-me"
-                  name="remember-me"
+                  id="rememberMe"
                   type="checkbox"
+                  {...register("rememberMe")}
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <label
-                  htmlFor="remember-me"
+                  htmlFor="rememberMe"
                   className="ml-2 block text-sm text-gray-900"
                 >
                   Remember me
@@ -179,24 +144,21 @@ export default function Login() {
               </div>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                disabled={mutation.isLoading}
-              >
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <LockClosedIcon
-                    className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
-                    aria-hidden="true"
-                  />
-                </span>
-                {mutation.isLoading ? "Loading..." : "Sign in"}
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <LockClosedIcon
+                  className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                  aria-hidden="true"
+                />
+              </span>
+              Sign in
+            </button>
           </form>
         </div>
-      </div>
+      </section>
     </>
   );
 }

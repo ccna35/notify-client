@@ -5,6 +5,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { Dialog, Transition } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useDeleteNoteMutation } from "../../app/api/noteApiSlice";
+import { BiLoaderAlt } from "react-icons/bi";
 
 type NoteProps = {
   title: string;
@@ -58,10 +59,10 @@ const Note = ({ id, createdAt, pinned, text, title, category }: NoteProps) => {
       </p>
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
-          <p className="text-sm p-2 rounded-sm bg-indigo-600 text-indigo-100 self-start ">
+          <p className="text-sm py-1 px-2 rounded-sm bg-indigo-600 text-indigo-100 self-start ">
             {category}
           </p>
-          <p className="text-sm p-2 rounded-sm bg-indigo-200 text-indigo-800 self-star">
+          <p className="text-sm py-1 px-2 rounded-sm bg-indigo-200 text-indigo-800 self-star">
             {newDate}
           </p>
         </div>
@@ -130,8 +131,16 @@ const Note = ({ id, createdAt, pinned, text, title, category }: NoteProps) => {
                         type="button"
                         className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                         onClick={handleDelete}
+                        disabled={isLoading}
                       >
-                        Delete
+                        {isLoading ? (
+                          <BiLoaderAlt
+                            className="h-5 w-5 text-red-100 animate-spin"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          "Delete"
+                        )}
                       </button>
                       <button
                         type="button"

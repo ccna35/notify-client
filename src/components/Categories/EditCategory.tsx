@@ -6,6 +6,7 @@ import { ICategoryFormInput } from "../../pages/Categories";
 import Input from "../Inputs/Input";
 import { cn } from "../../utils/utils";
 import axios from "axios";
+import { BiLoaderAlt } from "react-icons/bi";
 
 type EditCategoryProps = {
   id: number;
@@ -35,10 +36,10 @@ export default function EditCategory({
 
     const { category_name } = data;
     try {
-      const res = await updateCategory({ id, category_name }).unwrap();
+      await updateCategory({ id, category_name }).unwrap();
 
       closeModal();
-    } catch (error: { status: number; data: { message: string } }) {
+    } catch (error: any) {
       console.log(error);
       if (error.status === 400) {
         setErrorMsg(error.data.message);
@@ -135,7 +136,14 @@ export default function EditCategory({
                         className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         disabled={isLoading}
                       >
-                        Update
+                        {isLoading ? (
+                          <BiLoaderAlt
+                            className="h-5 w-5 text-indigo-100 animate-spin"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          "Update"
+                        )}
                       </button>
                       <button
                         type="button"

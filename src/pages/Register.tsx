@@ -1,18 +1,13 @@
-import axios from "axios";
-import { FormEvent, useState, ChangeEvent, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Input from "../components/Inputs/Input";
-import { API_URL } from "../environment/env";
-
-interface IFormInput {
-  firstName: string;
-  lastName: string;
-  email: string;
-  username: string;
-  password: string;
-  confirmPassword: string;
-}
+import { IRegisterFormInput } from "../types/types";
+import { useRegisterMutation } from "../app/api/userApiSlice";
+import { useAppDispatch } from "../store/store";
+import { setUser, userSelector } from "../app/slices/authSlice";
+import { useAppSelector } from "../app/hooks";
+import { BiLoaderAlt } from "react-icons/bi";
 
 const passwordRegex =
   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -20,34 +15,41 @@ const passwordRegex =
 export const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
 
 export default function Register() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
   const {
     register,
     handleSubmit,
     getValues,
     formState: { errors },
-  } = useForm<IFormInput>({ mode: "onChange" });
-  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+  } = useForm<IRegisterFormInput>({ mode: "onChange" });
+
+  const [addNewUser, { isLoading }] = useRegisterMutation();
+
+  const onSubmit: SubmitHandler<IRegisterFormInput> = async (data) => {
     try {
-      const res = await axios.post(API_URL + "/users/signup", data, {
-        withCredentials: true,
-      });
+      const res = await addNewUser(data).unwrap();
       console.log(res);
+      localStorage.setItem("user", JSON.stringify(res.user));
+      dispatch(setUser(res.user));
+      navigate("/home");
     } catch (error) {
       console.log(error);
     }
   };
 
-  const navigate = useNavigate();
+  const { isLoggedIn } = useAppSelector(userSelector);
 
   useEffect(() => {
-    if (localStorage.getItem("user")) {
+    if (isLoggedIn) {
       navigate("/home");
     }
   }, []);
 
   return (
-    <section className="py-16 bg-slate-50 min-h-screen grid">
-      <div className="container flex flex-col gap-8 justify-center items-center">
+    <section className="py-16 bg-slate-50 min-h-screen grid dark:bg-slate-950">
+      <div className="container flex flex-col gap-8 justify-center items-center dark:bg-slate-900 dark:border-slate-800 p-8 rounded-md w-fit">
         <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
           Sign up for a new account
         </h2>
@@ -163,8 +165,16 @@ export default function Register() {
             <button
               type="submit"
               className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              disabled={isLoading}
             >
-              Sign up
+              {isLoading ? (
+                <BiLoaderAlt
+                  className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400 animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                "Sign up"
+              )}
             </button>
           </div>
         </form>

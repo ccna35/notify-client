@@ -9,6 +9,7 @@ import { userSelector } from "../app/slices/authSlice";
 import CategoryMenu from "../components/CategoryMenu";
 import { useGetAllCategoriesQuery } from "../app/api/categoryApiSlice";
 import { CategoryType } from "../types/types";
+import { BiLoaderAlt } from "react-icons/bi";
 
 export interface IFormInput {
   note_title: string;
@@ -38,7 +39,6 @@ export default function New() {
   const [addNote, { isLoading }] = useAddNewNoteMutation();
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-    // const { note_title, note_body, isPinned } = data;
     try {
       const res = await addNote(data).unwrap();
 
@@ -172,7 +172,14 @@ export default function New() {
               className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               disabled={isLoading}
             >
-              Add New
+              {isLoading ? (
+                <BiLoaderAlt
+                  className="h-5 w-5 text-indigo-100 animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                "Add New"
+              )}
             </button>
 
             <div className="inline-flex gap-2 items-center">

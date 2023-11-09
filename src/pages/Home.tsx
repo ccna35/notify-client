@@ -12,11 +12,14 @@ import { useAppDispatch } from "../store/store";
 import { useAppSelector } from "../app/hooks";
 import { userSelector } from "../app/slices/authSlice";
 import { NoteType } from "../types/types";
+import { BiLoaderAlt } from "react-icons/bi";
 
 export default function Home() {
   const navigate = useNavigate();
 
   const { isLoggedIn } = useAppSelector(userSelector);
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -24,21 +27,28 @@ export default function Home() {
     }
   }, []);
 
-  const { isLoading, isSuccess, data } = useGetUserNotesQuery({
-    user_id: JSON.parse(localStorage.getItem("user") || "").id,
-    searchQuery: "",
-  });
-
-  if (isSuccess) {
-    console.log(data);
-  }
+  const { isLoading, data, isFetching } = useGetUserNotesQuery(
+    {
+      user_id: JSON.parse(localStorage.getItem("user") || "").id,
+      searchQuery,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
   return (
     <section className="py-8 min-h-screen dark:bg-slate-950">
       <div className="container">
-        <Input type="search" placeholder="Search…" classNames="max-w-sm" />
-        {isLoading ? (
-          <div className="mt-8 flex gap-4">
+        {data && data.length > 0 && (
+          <Input
+            type="search"
+            placeholder="Search…"
+            classNames="max-w-sm"
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        )}
+
+        {isLoading || isFetching ? (
+          <div className="mt-8 flex flex-wrap gap-4">
             <NotesLoader />
             <NotesLoader />
             <NotesLoader />

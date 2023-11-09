@@ -2,13 +2,18 @@ import { UseFormRegisterReturn } from "react-hook-form";
 
 import { cn } from "../../utils/utils";
 
-type InputProps = {
+// type InputProps = {
+//   register?: UseFormRegisterReturn;
+//   placeholder: string;
+//   type: string;
+//   id?: string;
+//   classNames?: string;
+// };
+
+interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   register?: UseFormRegisterReturn;
-  placeholder: string;
-  type: string;
-  id?: string;
   classNames?: string;
-};
+}
 
 export default function Input({
   register,
@@ -16,7 +21,8 @@ export default function Input({
   type,
   id,
   classNames,
-}: InputProps) {
+  ...rest
+}: IInputProps) {
   return (
     <input
       placeholder={placeholder}
@@ -27,6 +33,7 @@ export default function Input({
         classNames
       )}
       {...register}
+      {...rest}
     />
   );
 }

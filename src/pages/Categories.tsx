@@ -12,6 +12,7 @@ import { cn } from "../utils/utils";
 import CategoriesContainer from "../components/Categories/CategoriesContainer";
 import NotesLoader from "../components/SkeletonLoaders/NotesLoader";
 import { CategoryType } from "../types/types";
+import { BiLoaderAlt } from "react-icons/bi";
 
 export interface ICategoryFormInput {
   category_name: string;
@@ -62,7 +63,7 @@ export default function Categories() {
       const res = await addCategory(data).unwrap();
       resetField("category_name");
       console.log(res);
-    } catch (error: { status: number; data: { message: string } }) {
+    } catch (error: any) {
       console.log(error);
       if (error.status === 400) {
         setErrorMsg(error.data.message);
@@ -123,7 +124,14 @@ export default function Categories() {
               className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               disabled={isLoading}
             >
-              Add New
+              {isLoading ? (
+                <BiLoaderAlt
+                  className="h-5 w-5 text-indigo-100 animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                "Add New"
+              )}
             </button>
           </div>
         </form>

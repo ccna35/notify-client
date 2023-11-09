@@ -1,12 +1,15 @@
 import { Fragment, useState } from "react";
 import { Disclosure, Menu, Transition, Switch } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../app/hooks";
 import { clearUser, userSelector } from "../app/slices/authSlice";
 import { switchTheme, themeSelector } from "../app/slices/themeSlice";
 import { useAppDispatch } from "../store/store";
+import { cn } from "../utils/utils";
+import { useLazyLogoutQuery } from "../app/api/userApiSlice";
+import { BiLoaderAlt } from "react-icons/bi";
 
 type Page = {
   name: string;
@@ -30,16 +33,23 @@ function classNames<T, G>(T: string, G: string) {
 }
 
 export default function Navbar() {
-  const [enabled, setEnabled] = useState(false);
+  // const [enabled, setEnabled] = useState(false);
   const navigate = useNavigate();
 
   const { isLoggedIn } = useAppSelector(userSelector);
   const { darkMode } = useAppSelector(themeSelector);
   const dispatch = useAppDispatch();
 
-  const signOut = () => {
-    dispatch(clearUser());
-    navigate("/login");
+  const [logout, { isLoading }] = useLazyLogoutQuery();
+
+  const signOut = async () => {
+    try {
+      await logout();
+      dispatch(clearUser());
+      navigate("/login");
+    } catch (error: any) {
+      console.log(error);
+    }
   };
 
   return (
@@ -83,13 +93,11 @@ export default function Navbar() {
                       <NavLink
                         to={item.name.toLowerCase()}
                         key={item.name}
-                        className={classNames(
-                          item.current
-                            ? `bg-gray-900 text-white`
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          `px-3 py-2 rounded-md text-sm font-medium transition ${
-                            item.special && "bg-yellow-400 text-gray-900"
-                          }`
+                        className={cn(
+                          "text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition",
+                          {
+                            "bg-yellow-400 text-gray-900": item.special,
+                          }
                         )}
                         aria-current={item.current ? "page" : undefined}
                       >
@@ -155,46 +163,38 @@ export default function Navbar() {
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <Menu.Items className="absolute flex flex-col right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden">
                         <Menu.Item>
-                          {({ active }) => (
-                            <NavLink
-                              to="#"
-                              className={classNames(
-                                active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700"
-                              )}
-                            >
-                              Your Profile
-                            </NavLink>
-                          )}
+                          <Link
+                            to="/profile"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
+                          >
+                            Your Profile
+                          </Link>
                         </Menu.Item>
                         <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="#"
-                              className={classNames(
-                                active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700"
-                              )}
-                            >
-                              Settings
-                            </a>
-                          )}
+                          <Link
+                            to="/settings"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
+                          >
+                            Settings
+                          </Link>
                         </Menu.Item>
                         <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="#"
-                              className={classNames(
-                                active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700"
-                              )}
-                              onClick={signOut}
-                            >
-                              Sign out
-                            </a>
-                          )}
+                          <button
+                            className="px-4 py-2 text-sm bg-red-500 text-white hover:bg-red-300 w-full"
+                            onClick={signOut}
+                            disabled={isLoading}
+                          >
+                            {isLoading ? (
+                              <BiLoaderAlt
+                                className="h-5 w-5 text-red-500 group-hover:text-red-400 animate-spin"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              "Sign out"
+                            )}
+                          </button>
                         </Menu.Item>
                       </Menu.Items>
                     </Transition>

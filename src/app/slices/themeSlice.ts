@@ -3,22 +3,27 @@ import { RootState } from "../../store/store";
 
 type ThemeType = {
   darkMode: boolean;
+  theme: "light" | "dark";
 };
 
 const initialState: ThemeType = {
-  darkMode: false,
+  theme: "light",
+  darkMode: localStorage.getItem("theme")
+    ? JSON.parse(localStorage.getItem("theme") || "") === "dark"
+    : false,
 };
 
 const themeSlice = createSlice({
   name: "theme",
   initialState,
   reducers: {
-    switchTheme: (state) => {
-      state.darkMode = !state.darkMode;
+    setTheme: (state, action: PayloadAction<"light" | "dark">) => {
+      localStorage.setItem("theme", JSON.stringify(action.payload));
+      state.darkMode = action.payload === "dark";
     },
   },
 });
 
-export const { switchTheme } = themeSlice.actions;
+export const { setTheme } = themeSlice.actions;
 export const themeSelector = (state: RootState) => state.themeReducer;
 export default themeSlice.reducer;

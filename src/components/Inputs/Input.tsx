@@ -29,7 +29,7 @@ export default function Input({
       type={type}
       id={id}
       className={cn(
-        "border p-2 block w-full rounded-md border-gray-400 bg-white shadow-sm sm:text-sm dark:bg-slate-900 dark:text-slate-200 dark:border-gray-600",
+        "border p-2 block w-full rounded-md border-gray-400 bg-white shadow-sm sm:text-sm dark:bg-slate-800 dark:text-slate-200 dark:border-gray-600",
         classNames
       )}
       {...register}

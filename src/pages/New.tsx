@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Input from "../components/Inputs/Input";
@@ -10,6 +10,7 @@ import CategoryMenu from "../components/CategoryMenu";
 import { useGetAllCategoriesQuery } from "../app/api/categoryApiSlice";
 import { CategoryType } from "../types/types";
 import { BiLoaderAlt } from "react-icons/bi";
+import NewCategory from "../components/Categories/NewCategory";
 
 export interface IFormInput {
   note_title: string;
@@ -22,12 +23,6 @@ export default function New() {
   const navigate = useNavigate();
 
   const { isLoggedIn } = useAppSelector(userSelector);
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-    }
-  }, []);
 
   const {
     register,
@@ -58,6 +53,16 @@ export default function New() {
 
   if (isError) {
     console.log(error);
+  }
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  function openModal() {
+    setIsOpen(true);
   }
 
   return (
@@ -148,22 +153,31 @@ export default function New() {
             <p>Loading...</p>
           ) : (
             // <CategoryMenu categories={categories as CategoryType[]} />
-            <select
-              {...register("category")}
-              className="p-2 rounded-md w-52 border border-indigo-200 dark:bg-slate-900 dark:text-slate-200 dark:border-gray-600"
-            >
-              {categories!.map((cat) => {
-                return (
-                  <option
-                    value={cat.id}
-                    key={cat.id}
-                    className="text-indigo-700 dark:text-slate-200"
-                  >
-                    {cat.category_name}
-                  </option>
-                );
-              })}
-            </select>
+            <div className="flex items-center flex-wrap gap-4">
+              <select
+                {...register("category")}
+                className="p-2 rounded-md w-52 border border-indigo-200 dark:bg-slate-900 dark:text-slate-200 dark:border-gray-600"
+              >
+                {categories!.map((cat) => {
+                  return (
+                    <option
+                      value={cat.id}
+                      key={cat.id}
+                      className="text-indigo-700 dark:text-slate-200"
+                    >
+                      {cat.category_name}
+                    </option>
+                  );
+                })}
+              </select>
+              <button
+                type="button"
+                className="inline-flex justify-center rounded-md border border-transparent bg-slate-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                onClick={openModal}
+              >
+                Add New Category
+              </button>
+            </div>
           )}
 
           <div className="flex justify-between items-center">
@@ -199,6 +213,7 @@ export default function New() {
           </div>
         </form>
       </div>
+      <NewCategory isOpen={isOpen} closeModal={closeModal} />
     </section>
   );
 }

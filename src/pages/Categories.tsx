@@ -1,9 +1,6 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Input from "../components/Inputs/Input";
-import { useAppSelector } from "../app/hooks";
-import { userSelector } from "../app/slices/authSlice";
 import {
   useAddNewCategoryMutation,
   useGetAllCategoriesQuery,
@@ -13,68 +10,59 @@ import CategoriesContainer from "../components/Categories/CategoriesContainer";
 import NotesLoader from "../components/SkeletonLoaders/NotesLoader";
 import { CategoryType } from "../types/types";
 import { BiLoaderAlt } from "react-icons/bi";
-
-export interface ICategoryFormInput {
-  category_name: string;
-}
+import NewCategory from "../components/Categories/NewCategory";
 
 export default function Categories() {
-  const navigate = useNavigate();
+  // const {
+  //   register,
+  //   handleSubmit,
+  //   watch,
+  //   resetField,
+  //   formState: { errors },
+  // } = useForm<ICategoryFormInput>({ mode: "onChange" });
 
-  const { isLoggedIn } = useAppSelector(userSelector);
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-    }
-  }, []);
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    resetField,
-    formState: { errors },
-  } = useForm<ICategoryFormInput>({ mode: "onChange" });
-
-  const [addCategory, { isLoading }] = useAddNewCategoryMutation();
+  // const [addCategory, { isLoading }] = useAddNewCategoryMutation();
 
   const {
     data,
-    isSuccess,
     isError,
     error,
     isLoading: isCategoriesLoading,
   } = useGetAllCategoriesQuery();
 
-  if (isSuccess) {
-    console.log(data);
-  }
-
   if (isError) {
     console.log(error);
   }
 
-  const [errorMsg, setErrorMsg] = useState("");
+  // const [errorMsg, setErrorMsg] = useState("");
 
-  const onSubmit: SubmitHandler<ICategoryFormInput> = async (data) => {
-    setErrorMsg("");
-    try {
-      const res = await addCategory(data).unwrap();
-      resetField("category_name");
-      console.log(res);
-    } catch (error: any) {
-      console.log(error);
-      if (error.status === 400) {
-        setErrorMsg(error.data.message);
-      }
-    }
-  };
+  // const onSubmit: SubmitHandler<ICategoryFormInput> = async (data) => {
+  //   setErrorMsg("");
+  //   try {
+  //     await addCategory(data).unwrap();
+  //     resetField("category_name");
+  //   } catch (error: any) {
+  //     console.log(error);
+  //     if (error.status === 400) {
+  //       setErrorMsg(error.data.message);
+  //     }
+  //   }
+  // };
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  function openModal() {
+    setIsOpen(true);
+  }
 
   return (
     <section className="py-16 bg-slate-50 min-h-screen dark:bg-slate-950">
       <div className="container">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        {/* <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <div className="flex gap-2">
@@ -134,7 +122,15 @@ export default function Categories() {
               )}
             </button>
           </div>
-        </form>
+        </form> */}
+
+        <button
+          type="button"
+          className="inline-flex justify-center rounded-md border border-transparent bg-slate-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          onClick={openModal}
+        >
+          Add New Category
+        </button>
         {isCategoriesLoading ? (
           <div className="mt-8 flex gap-4">
             <NotesLoader />
@@ -145,6 +141,7 @@ export default function Categories() {
           <CategoriesContainer categories={data as CategoryType[]} />
         )}
       </div>
+      <NewCategory isOpen={isOpen} closeModal={closeModal} />
     </section>
   );
 }

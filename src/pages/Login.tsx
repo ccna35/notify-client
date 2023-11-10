@@ -1,13 +1,11 @@
 import { LockClosedIcon } from "@heroicons/react/20/solid";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Input from "../components/Inputs/Input";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { emailRegex } from "./Register";
-import { API_URL } from "../environment/env";
 import { useEffect } from "react";
 import { useAppDispatch } from "../store/store";
-import authSlice, { setUser, userSelector } from "../app/slices/authSlice";
+import { setUser, userSelector } from "../app/slices/authSlice";
 import { useAppSelector } from "../app/hooks";
 import { ILoginFormInput } from "../types/types";
 import { useLoginMutation } from "../app/api/userApiSlice";
@@ -17,13 +15,17 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { isLoggedIn } = useAppSelector(userSelector);
+  const location = useLocation();
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/home");
-    }
-  }, []);
+  const from = location.state?.from?.pathname || "/home";
+
+  // const { isLoggedIn } = useAppSelector(userSelector);
+
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     navigate("/home");
+  //   }
+  // }, []);
 
   const {
     register,
@@ -40,7 +42,7 @@ export default function Login() {
       console.log(res);
       localStorage.setItem("user", JSON.stringify(res.user));
       dispatch(setUser(res.user));
-      navigate("/home");
+      navigate(from);
     } catch (error) {
       console.log(error);
     }

@@ -38,3 +38,7 @@ export type CategoryType = {
   createdAt: string;
   user_id: number;
 };
+
+export interface ICategoryFormInput {
+  category_name: string;
+}

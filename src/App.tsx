@@ -17,6 +17,7 @@ import LandingPage from "./pages/LandingPage";
 import Premium from "./pages/Premium";
 import Register from "./pages/Register";
 import Categories from "./pages/Categories";
+import PublicRoutes from "./components/PublicRoutes";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,8 +29,10 @@ const router = createBrowserRouter(
           <Route path="/categories" element={<Categories />} />
           <Route path="/premium" element={<Premium />} />
         </Route>
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+        <Route element={<PublicRoutes />}>
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+        </Route>
         <Route path="/" element={<LandingPage />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/tos" element={<Tos />} />

@@ -1,50 +1,65 @@
-import axios from "axios";
-import Note from "../components/Notes/Note";
-import Spinner from "../components/Loaders/Spinner";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { API_URL } from "../environment/env";
+import { useState } from "react";
 import Input from "../components/Inputs/Input";
 import NotesContainer from "../components/Notes/NotesContainer";
 import { useGetUserNotesQuery } from "../app/api/noteApiSlice";
 import NotesLoader from "../components/SkeletonLoaders/NotesLoader";
-import { useAppDispatch } from "../store/store";
-import { useAppSelector } from "../app/hooks";
-import { userSelector } from "../app/slices/authSlice";
 import { NoteType } from "../types/types";
-import { BiLoaderAlt } from "react-icons/bi";
+import { useGetAllCategoriesQuery } from "../app/api/categoryApiSlice";
 
 export default function Home() {
-  const navigate = useNavigate();
-
-  const { isLoggedIn } = useAppSelector(userSelector);
-
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-    }
-  }, []);
+  const [isPinned, setIsPinned] = useState<string | boolean>("all");
+  const [category, setCategory] = useState<string | number>("");
 
   const { isLoading, data, isFetching } = useGetUserNotesQuery(
     {
       user_id: JSON.parse(localStorage.getItem("user") || "").id,
       searchQuery,
+      isPinned,
+      category,
     },
     { refetchOnMountOrArgChange: true }
   );
 
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetAllCategoriesQuery();
+
   return (
     <section className="py-8 min-h-screen dark:bg-slate-950">
       <div className="container">
-        {data && data.length > 0 && (
-          <Input
-            type="search"
-            placeholder="Search…"
-            classNames="max-w-sm"
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        {data && (
+          <div className="flex gap-4">
+            <Input
+              type="search"
+              placeholder="Search…"
+              classNames="max-w-sm"
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button
+              type="button"
+              className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-yellow-900 hover:bg-yellow-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
+              onClick={() =>
+                setIsPinned((prev) => (prev === "all" || false ? true : false))
+              }
+            >
+              Pinned
+            </button>
+            {!isCategoriesLoading && (
+              <select className="p-2 rounded-md w-52 border border-indigo-200 dark:bg-slate-900 dark:text-slate-200 dark:border-gray-600" onChange={(e) => setCategory(e.target.value)}>
+                {[{id: 0, category_name: "All"}, ...categories!].map((cat) => {
+                  return (
+                    <option
+                      value={cat.id}
+                      key={cat.id}
+                      className="text-indigo-700 dark:text-slate-200"
+                    >
+                      {cat.category_name}
+                    </option>
+                  );
+                })}
+              </select>
+            )}
+          </div>
         )}
 
         {isLoading || isFetching ? (

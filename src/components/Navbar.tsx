@@ -1,11 +1,11 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect } from "react";
 import { Disclosure, Menu, Transition, Switch } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../app/hooks";
 import { clearUser, userSelector } from "../app/slices/authSlice";
-import { switchTheme, themeSelector } from "../app/slices/themeSlice";
+import { setTheme, themeSelector } from "../app/slices/themeSlice";
 import { useAppDispatch } from "../store/store";
 import { cn } from "../utils/utils";
 import { useLazyLogoutQuery } from "../app/api/userApiSlice";
@@ -33,12 +33,21 @@ function classNames<T, G>(T: string, G: string) {
 }
 
 export default function Navbar() {
-  // const [enabled, setEnabled] = useState(false);
   const navigate = useNavigate();
 
   const { isLoggedIn } = useAppSelector(userSelector);
   const { darkMode } = useAppSelector(themeSelector);
   const dispatch = useAppDispatch();
+
+  const menuPages = isLoggedIn ? privatePages : publicPages;
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.setAttribute("class", "dark");
+    } else {
+      document.documentElement.removeAttribute("class");
+    }
+  }, []);
 
   const [logout, { isLoading }] = useLazyLogoutQuery();
 
@@ -54,7 +63,7 @@ export default function Navbar() {
 
   return (
     <Disclosure as="nav" className="bg-slate-950 sticky top-0">
-      {({ open, close }) => (
+      {({ open }) => (
         <>
           <div className="container">
             <div className="relative flex h-16 items-center justify-between">
@@ -89,12 +98,12 @@ export default function Navbar() {
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
-                    {(isLoggedIn ? privatePages : publicPages).map((item) => (
+                    {menuPages.map((item) => (
                       <NavLink
                         to={item.name.toLowerCase()}
                         key={item.name}
                         className={cn(
-                          "text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition",
+                          "select-none text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition",
                           {
                             "bg-yellow-400 text-gray-900": item.special,
                           }
@@ -120,7 +129,7 @@ export default function Navbar() {
                   <Switch
                     checked={darkMode}
                     onChange={() => {
-                      dispatch(switchTheme());
+                      dispatch(setTheme(darkMode ? "light" : "dark"));
                       if (darkMode) {
                         document.documentElement.removeAttribute("class");
                       } else {
@@ -206,7 +215,7 @@ export default function Navbar() {
 
           <Disclosure.Panel>
             <div className="space-y-1 px-2 pt-2 pb-3">
-              {(isLoggedIn ? privatePages : publicPages).map((item) => (
+              {menuPages.map((item) => (
                 <Disclosure.Button
                   as={Link}
                   to={item.name.toLowerCase()}

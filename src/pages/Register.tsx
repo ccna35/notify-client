@@ -39,13 +39,13 @@ export default function Register() {
     }
   };
 
-  const { isLoggedIn } = useAppSelector(userSelector);
+  // const { isLoggedIn } = useAppSelector(userSelector);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/home");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     navigate("/home");
+  //   }
+  // }, []);
 
   return (
     <section className="py-16 bg-slate-50 min-h-screen grid dark:bg-slate-950">

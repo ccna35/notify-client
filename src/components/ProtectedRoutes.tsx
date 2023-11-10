@@ -1,17 +1,17 @@
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAppSelector } from "../app/hooks";
+import { userSelector } from "../app/slices/authSlice";
 
 function ProtectedRoutes() {
-  const accessToken = true;
+  const { isLoggedIn } = useAppSelector(userSelector);
 
-  let isAuth: boolean;
+  const location = useLocation();
 
-  if (accessToken || localStorage.getItem("userData")) {
-    isAuth = true;
-  } else {
-    isAuth = false;
-  }
-
-  return isAuth ? <Outlet /> : <Navigate to="/login" replace />;
+  return isLoggedIn ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
+  );
 }
 
 export default ProtectedRoutes;

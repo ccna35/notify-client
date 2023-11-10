@@ -1,45 +1,36 @@
-import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
-import { useUpdateCategoryMutation } from "../../app/api/categoryApiSlice";
+import { useState, Fragment } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useAddNewCategoryMutation } from "../../app/api/categoryApiSlice";
 import Input from "../Inputs/Input";
 import { cn } from "../../utils/utils";
 import { BiLoaderAlt } from "react-icons/bi";
 import { ICategoryFormInput } from "../../types/types";
+import { Dialog, Transition } from "@headlessui/react";
 
-type EditCategoryProps = {
-  id: number;
+type AddCategoryProps = {
   isOpen: boolean;
   closeModal: () => void;
-  category_name: string;
 };
 
-export default function EditCategory({
-  id,
-  isOpen,
-  closeModal,
-  category_name,
-}: EditCategoryProps) {
+const NewCategory = ({ isOpen, closeModal }: AddCategoryProps) => {
   const {
     register,
     handleSubmit,
     watch,
+    resetField,
     formState: { errors },
   } = useForm<ICategoryFormInput>({ mode: "onChange" });
 
-  const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
-
+  const [addCategory, { isLoading, data }] = useAddNewCategoryMutation();
   const [errorMsg, setErrorMsg] = useState("");
 
   const onSubmit: SubmitHandler<ICategoryFormInput> = async (data) => {
     setErrorMsg("");
-    console.log(data);
-
-    const { category_name } = data;
     try {
-      await updateCategory({ id, category_name }).unwrap();
+      const res = await addCategory(data).unwrap();
+      console.log(res);
 
-      closeModal();
+      resetField("category_name");
     } catch (error: any) {
       console.log(error);
       if (error.status === 400) {
@@ -47,7 +38,6 @@ export default function EditCategory({
       }
     }
   };
-
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={() => {}}>
@@ -84,13 +74,12 @@ export default function EditCategory({
                 <div className="mt-2">
                   <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="flex flex-col gap-6"
+                    className="flex flex-col gap-4"
                   >
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-6 flex-grow">
                       <div className="flex flex-col gap-2">
                         <div className="flex gap-2">
                           <Input
-                            defaultValue={category_name}
                             type="text"
                             id="category_name"
                             placeholder="Category name"
@@ -127,12 +116,17 @@ export default function EditCategory({
                             {errors.category_name.message}
                           </small>
                         )}
+                        {data && (
+                          <small className="success w-fit">
+                            {data.message}
+                          </small>
+                        )}
                         {errorMsg && (
                           <small className="error w-fit">{errorMsg}</small>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex justify-between items-center gap-2">
                       <button
                         type="submit"
                         className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -144,7 +138,7 @@ export default function EditCategory({
                             aria-hidden="true"
                           />
                         ) : (
-                          "Update"
+                          "Add New"
                         )}
                       </button>
                       <button
@@ -152,7 +146,7 @@ export default function EditCategory({
                         className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                         onClick={closeModal}
                       >
-                        Cancel
+                        Close
                       </button>
                     </div>
                   </form>
@@ -164,4 +158,6 @@ export default function EditCategory({
       </Dialog>
     </Transition>
   );
-}
+};
+
+export default NewCategory;

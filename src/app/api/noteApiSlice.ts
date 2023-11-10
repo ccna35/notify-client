@@ -5,13 +5,15 @@ import { apiSlice } from "./apiSlice";
 type ArgsType = {
   user_id: number;
   searchQuery: string;
+  isPinned: string | boolean;
+  category: string | number;
 };
 
 export const noteApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUserNotes: builder.query<NoteType[], ArgsType>({
-      query: ({ user_id, searchQuery }) =>
-        `/notes/${user_id}/?search=${searchQuery}`,
+      query: ({ user_id, searchQuery, isPinned, category }) =>
+        `/notes/${user_id}/?search=${searchQuery}&isPinned=${isPinned}&category=${category}`,
       providesTags: ["Note"],
     }),
 

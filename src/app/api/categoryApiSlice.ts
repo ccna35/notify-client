@@ -1,4 +1,4 @@
-import { ICategoryFormInput } from "../../pages/Categories";
+import { ICategoryFormInput } from "../../types/types";
 import { apiSlice } from "./apiSlice";
 
 interface ICategory {
@@ -8,7 +8,8 @@ interface ICategory {
   user_id: number;
 }
 
-interface IUpdatedData extends ICategoryFormInput {
+interface IUpdatedData {
+  category_name: string;
   id: number;
 }
 
@@ -19,7 +20,7 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
       providesTags: ["Category"],
     }),
 
-    addNewCategory: builder.mutation<string, ICategoryFormInput>({
+    addNewCategory: builder.mutation<{ message: string }, ICategoryFormInput>({
       query: (data) => ({
         url: `/categories`,
         method: "POST",
@@ -36,13 +37,13 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Category"],
     }),
 
-    // deleteNote: builder.mutation<{ message: string }, number>({
-    //   query: (id) => ({
-    //     url: `/categories/${id}`,
-    //     method: "DELETE",
-    //   }),
-    //   invalidatesTags: ["Category"],
-    // }),
+    deleteCategory: builder.mutation<{ message: string }, number>({
+      query: (id) => ({
+        url: `/categories/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Category"],
+    }),
   }),
 });
 
@@ -50,4 +51,5 @@ export const {
   useAddNewCategoryMutation,
   useGetAllCategoriesQuery,
   useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
 } = categoryApiSlice;

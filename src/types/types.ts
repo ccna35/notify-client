@@ -28,6 +28,7 @@ export type NoteType = {
   note_body: string;
   isPinned: number;
   category_name: string;
+  category?: number;
   createdAt: string;
   user_id: number;
 };

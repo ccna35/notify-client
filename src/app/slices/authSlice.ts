@@ -12,7 +12,7 @@ type User = {
 
 interface UserState {
   isLoggedIn: boolean;
-  userInfo: User | {};
+  userInfo: User;
 }
 
 const initialState: UserState = {

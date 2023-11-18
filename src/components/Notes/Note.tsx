@@ -6,6 +6,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useDeleteNoteMutation } from "../../app/api/noteApiSlice";
 import { BiLoaderAlt } from "react-icons/bi";
+import { Link } from "react-router-dom";
 
 type NoteProps = {
   title: string;
@@ -39,7 +40,7 @@ const Note = ({ id, createdAt, pinned, text, title, category }: NoteProps) => {
 
   return (
     <motion.div
-      className="max-w-xs p-5 flex flex-col gap-4 self-start justify-between overflow-hidden rounded-md bg-white shadow-sm duration-500 hover:shadow-md border hover:border-slate-400 dark:bg-slate-900 dark:border-slate-800 min-h-fit"
+      className="max-w-xs p-5 flex flex-col gap-4 self-start justify-between overflow-hidden rounded-md bg-white shadow-sm duration-500 hover:shadow-md border hover:border-indigo-400 dark:bg-slate-900 dark:border-indigo-800 min-h-fit hover:bg-indigo-50 dark:hover:bg-slate-800"
       layout
       initial={{ opacity: 0.5 }}
       animate={{ opacity: 1 }}
@@ -51,11 +52,14 @@ const Note = ({ id, createdAt, pinned, text, title, category }: NoteProps) => {
         </p>
       )}
 
-      <h2 className="text-lg font-medium w-11/12 truncate dark:text-indigo-500">
-        {title}
-      </h2>
-      <p className="text-slate-700 text-base self-start w-11/12 dark:text-slate-100 flex-grow">
-        {text.slice(0, 100)}...
+      <Link to={`/edit/${id}`}>
+        <h2 className="text-lg font-medium w-11/12 truncate text-indigo-500">
+          {title}
+        </h2>
+      </Link>
+      <p className="text-slate-700 text-base self-start w-11/12 dark:text-slate-100 flex-grow line-clamp-5">
+        {/* {text.slice(0, 100)}... */}
+        {text}
       </p>
       <div className="flex justify-between items-center">
         <div className="flex gap-2">

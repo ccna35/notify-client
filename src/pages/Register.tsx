@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Input from "../components/Inputs/Input";
@@ -18,6 +18,8 @@ export default function Register() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
+  const [errorMsg, setErrorMsg] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -31,10 +33,14 @@ export default function Register() {
     try {
       const res = await addNewUser(data).unwrap();
       console.log(res);
+      setErrorMsg("");
       localStorage.setItem("user", JSON.stringify(res.user));
       dispatch(setUser(res.user));
       navigate("/home");
     } catch (error) {
+      if (error.originalStatus === 400) {
+        setErrorMsg(error.data);
+      }
       console.log(error);
     }
   };
@@ -55,6 +61,8 @@ export default function Register() {
         </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
           <div className="flex flex-col gap-6">
+            {errorMsg && <small className="error">{errorMsg}</small>}
+
             <div className="col-span-6 sm:col-span-3 flex flex-col gap-2">
               <Input
                 placeholder="First name"

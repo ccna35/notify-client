@@ -10,6 +10,8 @@ import { useAppDispatch } from "../store/store";
 import { cn } from "../utils/utils";
 import { useLazyLogoutQuery } from "../app/api/userApiSlice";
 import { BiLoaderAlt } from "react-icons/bi";
+import axios from "axios";
+import { API_URL } from "../environment/env";
 
 type Page = {
   name: string;
@@ -35,9 +37,11 @@ function classNames<T, G>(T: string, G: string) {
 export default function Navbar() {
   const navigate = useNavigate();
 
-  const { isLoggedIn } = useAppSelector(userSelector);
+  const { isLoggedIn, userInfo } = useAppSelector(userSelector);
   const { darkMode } = useAppSelector(themeSelector);
   const dispatch = useAppDispatch();
+
+  console.log(userInfo);
 
   const menuPages = isLoggedIn ? privatePages : publicPages;
 
@@ -54,6 +58,7 @@ export default function Navbar() {
   const signOut = async () => {
     try {
       await logout();
+      // await axios.get(API_URL + "/users/logout", { withCredentials: true });
       dispatch(clearUser());
       navigate("/login");
     } catch (error: any) {
@@ -116,9 +121,9 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-              {isLoggedIn && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  {/* <button
+
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                {/* <button
                     type="button"
                     className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                   >
@@ -126,32 +131,32 @@ export default function Navbar() {
                     <BellIcon className="h-6 w-6" aria-hidden="true" />
                   </button> */}
 
-                  <Switch
-                    checked={darkMode}
-                    onChange={() => {
-                      dispatch(setTheme(darkMode ? "light" : "dark"));
-                      if (darkMode) {
-                        document.documentElement.removeAttribute("class");
-                      } else {
-                        document.documentElement.setAttribute("class", "dark");
-                      }
-                    }}
+                <Switch
+                  checked={darkMode}
+                  onChange={() => {
+                    dispatch(setTheme(darkMode ? "light" : "dark"));
+                    if (darkMode) {
+                      document.documentElement.removeAttribute("class");
+                    } else {
+                      document.documentElement.setAttribute("class", "dark");
+                    }
+                  }}
+                  className={`${
+                    darkMode ? "bg-indigo-600" : "bg-gray-200"
+                  } relative inline-flex h-6 w-11 items-center rounded-full transition duration-500`}
+                >
+                  <span className="sr-only">Enable notifications</span>
+                  <span
                     className={`${
-                      darkMode ? "bg-indigo-600" : "bg-gray-200"
-                    } relative inline-flex h-6 w-11 items-center rounded-full transition duration-500`}
-                  >
-                    <span className="sr-only">Enable notifications</span>
-                    <span
-                      className={`${
-                        darkMode
-                          ? "translate-x-6 bg-white"
-                          : "translate-x-1 bg-gray-600"
-                      } inline-block h-4 w-4 transform rounded-full transition duration-500`}
-                    />
-                  </Switch>
+                      darkMode
+                        ? "translate-x-6 bg-white"
+                        : "translate-x-1 bg-gray-600"
+                    } inline-block h-4 w-4 transform rounded-full transition duration-500`}
+                  />
+                </Switch>
 
-                  {/* Profile dropdown */}
-
+                {/* Profile dropdown */}
+                {isLoggedIn && (
                   <Menu as="div" className="relative ml-3">
                     <div>
                       <Menu.Button className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -178,7 +183,7 @@ export default function Navbar() {
                             to="/profile"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
                           >
-                            Your Profile
+                            {userInfo.firstName + " " + userInfo.lastName}
                           </Link>
                         </Menu.Item>
                         <Menu.Item>
@@ -193,23 +198,24 @@ export default function Navbar() {
                           <button
                             className="px-4 py-2 text-sm bg-red-500 text-white hover:bg-red-300 w-full"
                             onClick={signOut}
-                            disabled={isLoading}
+                            // disabled={isLoading}
                           >
-                            {isLoading ? (
+                            {/* {isLoading ? (
                               <BiLoaderAlt
                                 className="h-5 w-5 text-red-500 group-hover:text-red-400 animate-spin"
                                 aria-hidden="true"
                               />
                             ) : (
                               "Sign out"
-                            )}
+                            )} */}
+                            Sign out
                           </button>
                         </Menu.Item>
                       </Menu.Items>
                     </Transition>
                   </Menu>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 

@@ -5,17 +5,18 @@ import { useGetUserNotesQuery } from "../app/api/noteApiSlice";
 import NotesLoader from "../components/SkeletonLoaders/NotesLoader";
 import { NoteType } from "../types/types";
 import { useGetAllCategoriesQuery } from "../app/api/categoryApiSlice";
+import useDebounce from "../hooks/useDebounce";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isPinned, setIsPinned] = useState<string | boolean>("all");
   const [category, setCategory] = useState<string | number>("");
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const { isLoading, data, isFetching } = useGetUserNotesQuery(
     {
       user_id: JSON.parse(localStorage.getItem("user") || "").id,
-      searchQuery,
-      isPinned,
+      searchQuery: debouncedSearchQuery,
       category,
     },
     { refetchOnMountOrArgChange: true }
@@ -35,7 +36,7 @@ export default function Home() {
               classNames="max-w-sm"
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button
+            {/* <button
               type="button"
               className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-yellow-900 hover:bg-yellow-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
               onClick={() =>
@@ -43,20 +44,25 @@ export default function Home() {
               }
             >
               Pinned
-            </button>
+            </button> */}
             {!isCategoriesLoading && (
-              <select className="p-2 rounded-md w-52 border border-indigo-200 dark:bg-slate-900 dark:text-slate-200 dark:border-gray-600" onChange={(e) => setCategory(e.target.value)}>
-                {[{id: 0, category_name: "All"}, ...categories!].map((cat) => {
-                  return (
-                    <option
-                      value={cat.id}
-                      key={cat.id}
-                      className="text-indigo-700 dark:text-slate-200"
-                    >
-                      {cat.category_name}
-                    </option>
-                  );
-                })}
+              <select
+                className="p-2 rounded-md w-52 border border-indigo-200 dark:bg-slate-900 dark:text-slate-200 dark:border-gray-600"
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                {[{ id: 0, category_name: "All" }, ...categories!].map(
+                  (cat) => {
+                    return (
+                      <option
+                        value={cat.id}
+                        key={cat.id}
+                        className="text-indigo-700 dark:text-slate-200"
+                      >
+                        {cat.category_name}
+                      </option>
+                    );
+                  }
+                )}
               </select>
             )}
           </div>

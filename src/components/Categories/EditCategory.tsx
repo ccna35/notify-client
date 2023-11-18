@@ -108,17 +108,15 @@ export default function EditCategory({
                           />
                           {watch("category_name") && (
                             <span
-                              className={cn(
-                                "p-1 rounded-md border text-base w-fit dark:bg-slate-900 dark:text-slate-200 dark:border-gray-600",
-                                {
-                                  "border-red-500 dark:border-red-500":
-                                    errors.category_name,
-                                  "border-green-500 dark:border-green-500":
-                                    !errors.category_name,
-                                }
-                              )}
+                              className={cn("p-1 rounded-md text-base w-fit", {
+                                " text-red-500": errors.category_name,
+                                "text-green-500": !errors.category_name,
+                              })}
                             >
-                              {watch("category_name").length}/20
+                              {Math.floor(
+                                (watch("category_name").length / 20) * 100
+                              )}
+                              %
                             </span>
                           )}
                         </div>

@@ -7,8 +7,7 @@ import {
 } from "react-router-dom";
 import RootLayout from "./Layouts/RootLayout";
 import Login from "./pages/Login";
-import New from "./pages/New";
-import LandingPageLayout from "./Layouts/LandingPageLayout";
+import New from "./pages/NewNote";
 import Privacy from "./pages/Privacy";
 import Tos from "./pages/Tos";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -18,6 +17,7 @@ import Premium from "./pages/Premium";
 import Register from "./pages/Register";
 import Categories from "./pages/Categories";
 import PublicRoutes from "./components/PublicRoutes";
+import EditNote from "./pages/EditNote";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -26,6 +26,7 @@ const router = createBrowserRouter(
         <Route element={<ProtectedRoutes />}>
           <Route path="/home" element={<Home />} />
           <Route path="/new" element={<New />} />
+          <Route path="/edit/:id" element={<EditNote />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/premium" element={<Premium />} />
         </Route>

@@ -33,12 +33,12 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ["Category"],
     }),
 
     logout: builder.query<{ message: string }, void>({
       query: () => "/users/logout",
-      providesTags: ["User"],
+      // providesTags: ["Category"],
     }),
   }),
 });

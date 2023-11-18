@@ -38,11 +38,9 @@ export default function Login() {
   const onSubmit: SubmitHandler<ILoginFormInput> = async (data) => {
     try {
       const res = await login(data).unwrap();
-
-      console.log(res);
       localStorage.setItem("user", JSON.stringify(res.user));
       dispatch(setUser(res.user));
-      navigate(from);
+      navigate("/home");
     } catch (error) {
       console.log(error);
     }
